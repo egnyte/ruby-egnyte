@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Egnyte::VERSION
   spec.authors       = ["Benjamin Coe", "Dan Reed", "Larry Kang"]
   spec.email         = ["ben@attachments.me"]
-  spec.description   = %q{TODO: Ruby client for Egnyte version 1 API}
-  spec.summary       = %q{TODO: Ruby client for Egnyte version 1 API. Built and maintained by Attachments.me.}
+  spec.description   = %q{Ruby client for Egnyte version 1 API}
+  spec.summary       = %q{Ruby client for Egnyte version 1 API. Built and maintained by Attachments.me.}
   spec.homepage      = ""
   spec.license       = "MIT"
 
