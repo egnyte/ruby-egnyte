@@ -70,15 +70,25 @@ module Egnyte
         parsed_body = {}
       end
 
-      case status / 100
-      when 4
-        #raise(RubyBox::ItemNameInUse.new(parsed_body), parsed_body["message"]) if parsed_body["code"] == "item_name_in_use"
-        #raise(RubyBox::AuthError.new(parsed_body), parsed_body["message"]) if parsed_body["code"] == "unauthorized" || status == 401
-        #raise(RubyBox::RequestError.new(parsed_body), parsed_body["message"])
-      when 5
-        #raise RubyBox::ServerError, parsed_body["message"]
+      # Handle known errors.
+      case status
+      when 400
+        raise BadRequest.new(parsed_body)
+      when 401
+        raise NotAuthorized.new(parsed_body)
+      when 403
+        raise InsufficientPermissions.new(parsed_body)
+      when 404
+        raise FileFolderNotFound.new(parsed_body)
+      when 405
+        raise FileFolderDuplicateExists.new(parsed_body)
+      when 413
+        raise FileSizeExceedsLimit.new(parsed_body)
       end
-      
+
+      # Handle all other request errors.
+      raise RequestError.new(parsed_body) if status >= 400
+
       parsed_body
     end
 
