@@ -9,5 +9,7 @@ module Egnyte
     end
   end
 
-  class UnsupportedAuthStrategy  < StandardError; end
+  class FileOrFolderNotFound < StandardError; end
+  class UnsupportedAuthStrategy < StandardError; end
+  class RequestError < EgnyteError; end
 end

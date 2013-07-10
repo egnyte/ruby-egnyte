@@ -1,0 +1,23 @@
+{
+  "name":"docs",
+  "is_folder":true,
+  "folder_id":"d7d56ebc-ce31-4ba8-a6b3-292ffb43f215",
+  "folders":[
+    {
+      "name":"subfolder1",
+      "is_folder":true,
+      "folder_id":"5652844d-dd48-45a9-b8be-3d06c06c819a"
+    }
+  ],
+  "files":[
+    {
+      "is_folder":false,
+      "entry_id":"be7b01af-a5e2-42ef-a0e1-3a20c820d327",
+      "checksum":"c0bab8ffa555571b31338ed1b9249b72a139fc57055b21d91d0d4c02c7d50221e32aba3a1beb3a3c85a1e3368ac8b4893d7a41739a6fd24b25108398d76516e9",
+      "last_modified":"Sun, 02 Sep 2012 08:02:48GMT",
+      "uploaded_by":"jsmith",
+      "size":1024,
+      "name":"test.txt"
+    }
+  ]
+}
