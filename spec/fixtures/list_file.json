@@ -1,0 +1,27 @@
+{
+  "is_folder":false,
+  "entry_id":"a4e2857e-9cf4-492f-9087-0a8cee324e4c",
+  "checksum":"32d919f9f96d6f8e92889e68eb2c9eb8079b2327d80a70e247a9c426f9fc5049a7a7978eb6f0ab6d129720b871637d8175e047199bcf77fe36d23d15e81886a8",
+  "last_modified":"Sun, 02 Sep 2012 08:03:12 GMT",
+  "uploaded_by":"jsmith",
+  "size":1023,
+  "name":"example.txt",
+  "versions":[
+    {
+      "is_folder":false,
+      "entry_id":"0ee550e4-854a-4ebc-a2d1-0de17714957f",
+      "checksum":"2aca968ceb5452f797810a67ff283eb0b72dc334868c11f16e8cb9b8ab713e30f49a30245d16a9f187293b4971fd8a1d6c588d981799283ec1fbcc84c9fe44cb",
+      "last_modified":"Sun, 02 Sep 2012 07:37:34 GMT",
+      "uploaded_by":"mjohnson",
+      "size":1378
+    },
+    {
+      "is_folder":false,
+      "entry_id":"1eb75cc1-af4f-4331-8e56-b2f7d1ebebe5",
+      "checksum":"0a6a7ba5048971d4718da58ec0f9ba51a4bfc5691f11da4c0afa38244f474f7076bb6edf48d8bfb55bbbcf128c55918fbe96485ac1178e78ac2686a6fb4a0785",
+      "last_modified":"Sun, 02 Sep 2012 08:02:20 GMT",
+      "uploaded_by":"jsmith",
+      "size":1108
+    }
+  ]
+}

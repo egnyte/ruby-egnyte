@@ -6,8 +6,7 @@ module Egnyte
     end
 
     def method_missing(method, *args, &block)
-      key = method.to_s
-      @data[key]
+      @data[method.to_s]
     end
 
     def update_data(data)

@@ -1,3 +1,4 @@
+require 'egnyte'
 require 'webmock/rspec'
 
 RSpec.configure do |c|

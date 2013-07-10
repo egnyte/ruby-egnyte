@@ -1,7 +1,3 @@
-require 'uri'
-require 'oauth2'
-require 'net/https'
-
 module Egnyte
   class Session
 
