@@ -1,5 +1,19 @@
 module Egnyte
   class File < Item
+
+    def download
+      stream.read
+    end
+
+    # use opts to provide lambdas
+    # to track the streaming download:
+    #
+    # :content_length_proc
+    # :progress_proc
+    def stream( opts={} )
+      @session.streaming_download( "#{fs_path('fs-content')}/#{URI.escape(path)}", opts )
+    end
+
     def self.find(session, path)
       path = Egnyte::Helper.normalize_path(path)
 

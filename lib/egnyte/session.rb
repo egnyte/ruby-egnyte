@@ -53,6 +53,18 @@ module Egnyte
       resp = request(uri, request)
     end
 
+    # perform a streaming download of a file
+    # rather than in-memory.
+    def streaming_download(url, opts)
+      params = {
+        :content_length_proc => opts[:content_length_proc],
+        :progress_proc => opts[:progress_proc],
+        'Authorization' => "Bearer #{@access_token.token}"
+      }
+      
+      open(url, params)
+    end
+
     private
 
     def request(uri, request)
