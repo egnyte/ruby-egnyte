@@ -7,7 +7,7 @@ module Egnyte
         'path' => path
       }, session)
       
-      parsed_body = session.get("#{file.fs_path}#{path}")
+      parsed_body = session.get("#{file.fs_path}#{URI.escape(path)}")
 
       raise FileExpected if parsed_body['is_folder']
 

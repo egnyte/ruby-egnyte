@@ -2,6 +2,8 @@ require 'uri'
 require 'json'
 require 'oauth2'
 require 'net/https'
+require 'mime/types'
+require 'net/http/post/multipart'
 
 require "egnyte/version"
 require "egnyte/session"

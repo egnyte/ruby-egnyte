@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "multipart-post"
+  spec.add_dependency "mime-types"
   spec.add_dependency "oauth2"
   spec.add_dependency "json"
 

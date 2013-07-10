@@ -43,6 +43,16 @@ module Egnyte
       resp = request(uri, request)
     end
 
+    def multipart_post(url, filename, data)
+      uri = URI.parse(url)
+
+      request = Net::HTTP::Post::Multipart.new(uri.path, {
+        "filename" => UploadIO.new(data, MIME::Types.type_for(filename).first, filename)
+      })
+
+      resp = request(uri, request)
+    end
+
     private
 
     def request(uri, request)

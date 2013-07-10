@@ -4,12 +4,18 @@ module Egnyte
       path = Egnyte::Helper.normalize_path(path)
 
       new_folder_path = [self.path.split('/'), path.split('/')].flatten.join('/')
-      
+      new_folder_path = URI.escape(new_folder_path)
+
       @session.post("#{fs_path}#{new_folder_path}", JSON.dump({
         action: 'add_folder'
       }))
 
       Folder::find(@session, new_folder_path)
+    end
+
+    def upload(filename, content)
+      @session.multipart_post("#{fs_path('fs-content')}#{URI.escape(path)}/#{URI.escape(filename)}", filename, content)
+      File::find(@session, "#{path}/#{filename}")
     end
 
     def files
@@ -27,7 +33,7 @@ module Egnyte
         'path' => path
       }, session)
       
-      parsed_body = session.get("#{folder.fs_path}#{path}")
+      parsed_body = session.get("#{folder.fs_path}#{URI.escape(path)}")
 
       raise FolderExpected unless parsed_body['is_folder']
 
