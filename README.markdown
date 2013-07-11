@@ -77,8 +77,26 @@ p file.name # example.txt.
 * Deleting a file.
 
 ```ruby
-folder = @client.folder('/Shared/Documents/banana')
-folder.delete
+@client.file('/Shared/example.txt').delete
+```
+
+* Uploading a file.
+
+```ruby
+local_path = "./LICENSE.txt"
+filename = "LICENSE.txt"
+
+folder = @client.folder('Shared/Documents/')
+File.open( local_path ) do |data|
+ folder.upload(filename, data)
+end
+```
+
+* Downloading a file.
+
+```ruby
+file = @client.file('/Shared/Documents/LICENSE.txt')
+file.download
 ```
 
 1. Fork it
