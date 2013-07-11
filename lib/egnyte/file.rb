@@ -14,6 +14,10 @@ module Egnyte
       @session.streaming_download( "#{fs_path('fs-content')}/#{URI.escape(path)}", opts )
     end
 
+    def delete
+      @session.delete("#{fs_path}/#{URI.escape(path)}")
+    end
+
     def self.find(session, path)
       path = Egnyte::Helper.normalize_path(path)
 

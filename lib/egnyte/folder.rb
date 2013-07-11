@@ -3,7 +3,7 @@ module Egnyte
     def create(path)
       path = Egnyte::Helper.normalize_path(path)
 
-      new_folder_path = [self.path.split('/'), path.split('/')].flatten.join('/')
+      new_folder_path = "#{self.path}/#{path}"
       new_folder_path = URI.escape(new_folder_path)
 
       @session.post("#{fs_path}#{new_folder_path}", JSON.dump({
@@ -11,6 +11,10 @@ module Egnyte
       }))
 
       Folder::find(@session, new_folder_path)
+    end
+
+    def delete
+      @session.delete("#{fs_path}/#{URI.escape(path)}")
     end
 
     def upload(filename, content)

@@ -35,6 +35,12 @@ module Egnyte
       resp = request( uri, request )
     end
 
+    def delete(url)
+      uri = URI.parse(url)
+      request = Net::HTTP::Delete.new( uri.request_uri )
+      resp = request( uri, request )
+    end
+
     def post(url, body)
       uri = URI.parse(url)
       request = Net::HTTP::Post.new(uri.request_uri)

@@ -36,6 +36,51 @@ The client initialized, we can start interacting with the Egnyte API.
 Folders
 ------
 
+* Fetching a folder
+
+```ruby
+folder = @client.folder('/Shared')
+p folder.name # outputs 'Shared'.
+```
+
+* Listing files in a folder.
+
+```ruby
+@client.folder('/Shared/Documents/').files.each {|f| p f.name}
+# outputs "IMG_0440.JPG", "IMG_0431.JPG"
+```
+
+* Creating a folder.
+
+```ruby
+new_folder = @client.folder('/Shared/Documents/').create('banana')
+p new_folder.path # a new folder was created /Shared/Documents/banana
+```
+
+* Deleting a folder.
+
+```ruby
+folder = @client.folder('/Shared/Documents/banana')
+folder.delete
+```
+
+Files
+-----
+
+* Fetching a file
+
+```ruby
+file = @client.file('/Shared/example.txt')
+p file.name # example.txt.
+```
+
+* Deleting a file.
+
+```ruby
+folder = @client.folder('/Shared/Documents/banana')
+folder.delete
+```
+
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
