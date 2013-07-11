@@ -6,7 +6,7 @@ require 'egnyte/version'
 Gem::Specification.new do |spec|
   spec.name          = "egnyte"
   spec.version       = Egnyte::VERSION
-  spec.authors       = ["Benjamin Coe", "Dan Reed", "Larry Kang"]
+  spec.authors       = ["Benjamin Coe", "Dan Reed", "Larry Kang", "Jesse Miller"]
   spec.email         = ["ben@attachments.me"]
   spec.description   = %q{Ruby client for Egnyte version 1 API}
   spec.summary       = %q{Ruby client for Egnyte version 1 API. Built and maintained by Attachments.me.}
