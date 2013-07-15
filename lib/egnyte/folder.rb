@@ -47,6 +47,7 @@ module Egnyte
     private
 
     def create_objects(klass, key)
+      return [] unless @data[key]
       @data[key].map do |data|
         data = data.merge({
           'path' => "#{path}/#{data['name']}"
