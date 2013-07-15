@@ -3,11 +3,12 @@ module Egnyte
 
     attr_accessor :domain, :api
 
-    def initialize(opts, strategy=:implicit)
+    def initialize(opts, strategy=:implicit, backoff=0.5)
 
       @strategy = strategy # the authentication strategy to use.
       raise Egnyte::UnsupportedAuthStrategy unless @strategy == :implicit
       
+      @backoff = backoff # only two requests are allowed a second by Egnyte.
       @api = 'pubapi' # currently we only support the public API.
 
       # the domain of the egnyte account to interact with.
@@ -82,6 +83,10 @@ module Egnyte
       request.add_field('Authorization', "Bearer #{@access_token.token}")
 
       response = http.request(request)
+
+      # Egnyte throttles requests to
+      # two requests per second.
+      sleep(@backoff)
 
       parse_response( response.code.to_i, response.body )
     end
