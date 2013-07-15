@@ -4,11 +4,11 @@ module Egnyte
       @session = session
     end
 
-    def folder(path='')
+    def folder(path='Shared')
       Folder::find(@session, path)
     end
 
-    def file(path='')
+    def file(path)
       File::find(@session, path)
     end
   end
