@@ -49,6 +49,16 @@ describe Egnyte::Folder do
       file.is_a?(Egnyte::File).should == true
       file.path.should == 'Shared/test.txt'
     end
+
+    it "should return an empty array if there arent any files in the folder" do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => File.read('./spec/fixtures/folder_listing_no_files.json'), :status => 200)
+
+      folder = @client.folder
+      files = folder.files
+      files.size.should == 0
+    end
   end
 
   describe "#folders" do

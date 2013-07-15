@@ -1,0 +1,12 @@
+{
+  "name":"docs",
+  "is_folder":true,
+  "folder_id":"d7d56ebc-ce31-4ba8-a6b3-292ffb43f215",
+  "folders":[
+    {
+      "name":"subfolder1",
+      "is_folder":true,
+      "folder_id":"5652844d-dd48-45a9-b8be-3d06c06c819a"
+    }
+  ]
+}
