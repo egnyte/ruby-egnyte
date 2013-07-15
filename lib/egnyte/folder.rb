@@ -47,12 +47,13 @@ module Egnyte
     private
 
     def create_objects(klass, key)
-      @data[key].map do |data|
+      objects = @data[key].map do |data|
         data = data.merge({
           'path' => "#{path}/#{data['name']}"
         })
         klass.new(data, @session)
       end
+      objects.nil? ? [] : objects #return an empty array if it would otherwise be nil
     end
   end
 end
