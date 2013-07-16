@@ -54,6 +54,7 @@ module Egnyte
       uri = URI.parse(url)
 
       request = Net::HTTP::Post.new(uri.request_uri)
+      request.body = data.read
       request.content_type = 'application/binary'
 
       resp = request(uri, request)
