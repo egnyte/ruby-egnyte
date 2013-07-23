@@ -1,0 +1,5 @@
+---
+api_key: "YOUR_API_TOKEN"
+access_token: "YOUR_AUTH_TOKEN"
+domain: "YOUR_COMPANY_DOMAIN"
+root_folder: "Private/YOUR_NAME"
