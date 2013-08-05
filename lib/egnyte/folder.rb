@@ -5,7 +5,7 @@ module Egnyte
 
       new_folder_path = "#{self.path}/#{path}"
 
-      response = @session.post("#{fs_path}#{URI.escape(new_folder_path)}", JSON.dump({
+      @session.post("#{fs_path}#{URI.escape(new_folder_path)}", JSON.dump({
         action: 'add_folder'
       }))
 
