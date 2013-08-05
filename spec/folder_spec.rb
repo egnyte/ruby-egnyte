@@ -4,12 +4,60 @@ require 'spec_helper'
 
 describe Egnyte::Folder do
   before(:each) do
-    session = Egnyte::Session.new({
+    @session = Egnyte::Session.new({
       key: 'api_key',
       domain: 'test',
       access_token: 'access_token'
     }, :implicit, 0.0)
-    @client = Egnyte::Client.new(session)
+    @client = Egnyte::Client.new(@session)
+  end
+
+  describe "#upload" do
+    it "upload file to appropriate endpoint, and return a file object" do
+      stub_request(:post, "https://test.egnyte.com/pubapi/v1/fs-content/apple/banana/LICENSE.txt")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' }, :body => File.open('./LICENSE.txt').read)
+        .to_return(:body => '', :status => 200, :headers => {
+          'ETag' => 'c0c6c151-104b-4ddd-a0c7-eea809fc8a6a',
+          'X-Sha512-Checksum' => '434390eddf638ab28e0f4668dca32e4a2b05c96eb3c8c0ca889788e204158cb4f240f1055ebac35745ede0e2349c83b407b9e4e0109bdc0b5ccdfe332a60fcfc',
+          'last_modified' => 'Mon, 05 Aug 2013 22:37:35 GMT'
+        })
+
+      folder = Egnyte::Folder.new({
+        'path' => 'apple/banana',
+        'name' => 'banana'
+      }, @session)
+
+      file = nil
+
+      File.open( './LICENSE.txt' ) do |data|
+        file = folder.upload('LICENSE.txt', data)
+      end
+
+      file.is_folder.should == false
+      file.name.should == 'LICENSE.txt'
+      file.entry_id.should == 'c0c6c151-104b-4ddd-a0c7-eea809fc8a6a'
+      file.checksum.should == '434390eddf638ab28e0f4668dca32e4a2b05c96eb3c8c0ca889788e204158cb4f240f1055ebac35745ede0e2349c83b407b9e4e0109bdc0b5ccdfe332a60fcfc'
+      file.last_modified.should == 'Mon, 05 Aug 2013 22:37:35 GMT'
+      file.size.should == 1071
+    end
+  end
+
+  describe "#create" do
+    it "should call post to fs/path with appropriate payload and return folder object" do
+      stub_request(:post, "https://test.egnyte.com/pubapi/v1/fs/apple/banana/New%20Folder")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' }, :body => JSON.dump({"action" => "add_folder"}))
+        .to_return(:body => '', :status => 200)
+
+      folder = Egnyte::Folder.new({
+        'path' => 'apple/banana',
+        'name' => 'banana'
+      }, @session)
+
+      new_folder = folder.create('New Folder')
+      new_folder.name.should == 'New Folder'
+      new_folder.path.should == 'apple/banana/New Folder'
+      new_folder.folders.should == []
+    end
   end
 
   describe "Folder::find" do
