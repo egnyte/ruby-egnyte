@@ -4,13 +4,17 @@ module Egnyte
       path = Egnyte::Helper.normalize_path(path)
 
       new_folder_path = "#{self.path}/#{path}"
-      new_folder_path = URI.escape(new_folder_path)
 
-      @session.post("#{fs_path}#{new_folder_path}", JSON.dump({
+      response = @session.post("#{fs_path}#{URI.escape(new_folder_path)}", JSON.dump({
         action: 'add_folder'
       }))
 
-      Folder::find(@session, new_folder_path)
+      Folder.new({
+        'path' => new_folder_path,
+        'folders' => [],
+        'is_folder' => true,
+        'name' => new_folder_path.split('/').pop
+      }, @session)
     end
 
     def delete
@@ -18,8 +22,18 @@ module Egnyte
     end
 
     def upload(filename, content)
-      @session.multipart_post("#{fs_path('fs-content')}#{URI.escape(path)}/#{URI.escape(filename)}", filename, content)
-      File::find(@session, "#{path}/#{filename}")
+      resp = @session.multipart_post("#{fs_path('fs-content')}#{URI.escape(path)}/#{URI.escape(filename)}", filename, content, false)
+
+      content.rewind # to calculate size, rewind content stream.
+
+      File.new({
+        'is_folder' => false,
+        'entry_id' => resp['ETag'],
+        'checksum' => resp['X-Sha512-Checksum'],
+        'last_modified' => resp['Last-Modified'],
+        'name' => filename,
+        'size' => content.size
+      }, @session)
     end
 
     def files

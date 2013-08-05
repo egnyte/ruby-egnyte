@@ -30,34 +30,34 @@ module Egnyte
       @access_token = OAuth2::AccessToken.new(@client, token) if @strategy == :implicit
     end
 
-    def get(url)
+    def get(url, return_parsed_response=true)
       uri = URI.parse(url)
       request = Net::HTTP::Get.new( uri.request_uri )
-      resp = request( uri, request )
+      resp = request( uri, request, return_parsed_response )
     end
 
-    def delete(url)
+    def delete(url, return_parsed_response=true)
       uri = URI.parse(url)
       request = Net::HTTP::Delete.new( uri.request_uri )
-      resp = request( uri, request )
+      resp = request( uri, request, return_parsed_response )
     end
 
-    def post(url, body)
+    def post(url, body, return_parsed_response=true)
       uri = URI.parse(url)
       request = Net::HTTP::Post.new(uri.request_uri)
       request.body = body
       request.content_type = "application/json"
-      resp = request(uri, request)
+      resp = request(uri, request, return_parsed_response)
     end
 
-    def multipart_post(url, filename, data)
+    def multipart_post(url, filename, data, return_parsed_response=true)
       uri = URI.parse(url)
 
       request = Net::HTTP::Post.new(uri.request_uri)
       request.body = data.read
       request.content_type = 'application/binary'
 
-      resp = request(uri, request)
+      resp = request(uri, request, return_parsed_response)
     end
 
     # perform a streaming download of a file
@@ -74,7 +74,7 @@ module Egnyte
 
     private
 
-    def request(uri, request)
+    def request(uri, request, return_parsed_response=true)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       http.ssl_version = :SSLv3
@@ -88,7 +88,8 @@ module Egnyte
       # two requests per second.
       sleep(@backoff)
 
-      parse_response( response.code.to_i, response.body )
+      parsed_response = parse_response( response.code.to_i, response.body )
+      return_parsed_response ? parsed_response : response
     end
 
     def parse_response( status, body )
