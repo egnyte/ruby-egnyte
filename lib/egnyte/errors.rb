@@ -19,4 +19,7 @@ module Egnyte
   class InsufficientPermissions < EgnyteError; end
   class FileFolderDuplicateExists < EgnyteError; end
   class FileSizeExceedsLimit < EgnyteError; end
+  class DomainRequired < EgnyteError; end
+  class OAuthUsernameRequired < EgnyteError; end
+  class OAuthPasswordRequired < EgnyteError; end
 end

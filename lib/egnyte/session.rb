@@ -6,7 +6,7 @@ module Egnyte
     def initialize(opts, strategy=:implicit, backoff=0.5)
 
       @strategy = strategy # the authentication strategy to use.
-      raise Egnyte::UnsupportedAuthStrategy unless @strategy == :implicit
+      raise Egnyte::UnsupportedAuthStrategy unless [:implicit, :password].include? @strategy
       
       @backoff = backoff # only two requests are allowed a second by Egnyte.
       @api = 'pubapi' # currently we only support the public API.
@@ -16,10 +16,18 @@ module Egnyte
 
       @client = OAuth2::Client.new(opts[:key], nil, {
         :site => "https://#{@domain}.egnyte.com",
-        :authorize_url => "/puboauth/token"
+        :authorize_url => "/puboauth/token",
+        :token_url => "/puboauth/token"
       })
 
-      @access_token = OAuth2::AccessToken.new(@client, opts[:access_token]) if opts[:access_token]
+      if @strategy == :implicit
+        @access_token = OAuth2::AccessToken.new(@client, opts[:access_token]) if opts[:access_token]
+      elsif @strategy == :password
+        raise Egnyte::OAuthUsernameRequired unless @username = opts[:username]
+        raise Egnyte::OAuthPasswordRequired unless @password = opts[:password]
+        @access_token = @client.password.get_token(@username, @password)
+      end
+
     end
 
     def authorize_url(redirect_uri)
