@@ -33,12 +33,12 @@ describe Egnyte::Folder do
         file = folder.upload('LICENSE.txt', data)
       end
 
-      file.is_folder.should == false
-      file.name.should == 'LICENSE.txt'
-      file.entry_id.should == 'c0c6c151-104b-4ddd-a0c7-eea809fc8a6a'
-      file.checksum.should == '434390eddf638ab28e0f4668dca32e4a2b05c96eb3c8c0ca889788e204158cb4f240f1055ebac35745ede0e2349c83b407b9e4e0109bdc0b5ccdfe332a60fcfc'
-      file.last_modified.should == 'Mon, 05 Aug 2013 22:37:35 GMT'
-      file.size.should == 1071
+      expect(file.is_folder).to be false
+      expect(file.name).to eq('LICENSE.txt')
+      expect(file.entry_id).to eq('c0c6c151-104b-4ddd-a0c7-eea809fc8a6a')
+      expect(file.checksum).to eq('434390eddf638ab28e0f4668dca32e4a2b05c96eb3c8c0ca889788e204158cb4f240f1055ebac35745ede0e2349c83b407b9e4e0109bdc0b5ccdfe332a60fcfc')
+      expect(file.last_modified).to eq('Mon, 05 Aug 2013 22:37:35 GMT')
+      expect(file.size).to eq(1103)
     end
   end
 
@@ -54,9 +54,9 @@ describe Egnyte::Folder do
       }, @session)
 
       new_folder = folder.create('New Folder')
-      new_folder.name.should == 'New Folder'
-      new_folder.path.should == 'apple/banana/New Folder'
-      new_folder.folders.should == []
+      expect(new_folder.name).to eq('New Folder')
+      expect(new_folder.path).to eq('apple/banana/New Folder')
+      expect(new_folder.folders).to eq([])
     end
   end
 
@@ -66,7 +66,7 @@ describe Egnyte::Folder do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:body => File.read('./spec/fixtures/list_folder.json'), :status => 200)
 
-      @client.folder.name.should == 'docs'
+      expect(@client.folder.name).to eq('docs')
     end
 
     it "should raise FileOrFolderNotFound error for a non-existent folder" do
@@ -74,7 +74,7 @@ describe Egnyte::Folder do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:status => 404)
 
-      lambda {@client.folder('banana')}.should raise_error( Egnyte::FileFolderNotFound ) 
+      expect {@client.folder('banana')}.to raise_error( Egnyte::FileFolderNotFound ) 
     end
 
     it "should raise FolderExpected if path to file provided" do
@@ -82,7 +82,7 @@ describe Egnyte::Folder do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:body => File.read('./spec/fixtures/list_file.json'), :status => 200)
 
-      lambda {@client.folder}.should raise_error( Egnyte::FolderExpected ) 
+      expect {@client.folder}.to raise_error( Egnyte::FolderExpected ) 
     end
   end
 
@@ -94,8 +94,9 @@ describe Egnyte::Folder do
 
       folder = @client.folder
       file = folder.files.first
-      file.is_a?(Egnyte::File).should == true
-      file.path.should == 'Shared/test.txt'
+      #file.is_a?(Egnyte::File).should == true
+      expect(file).to be_instance_of(Egnyte::File)
+      expect(file.path).to eq('Shared/test.txt')
     end
 
     it "should return an empty array if there arent any files in the folder" do
@@ -105,7 +106,7 @@ describe Egnyte::Folder do
 
       folder = @client.folder
       files = folder.files
-      files.size.should == 0
+      expect(files.size).to eq(0)
     end
   end
 
@@ -117,8 +118,9 @@ describe Egnyte::Folder do
 
       folder = @client.folder
       file = folder.folders.first
-      file.is_a?(Egnyte::Folder).should == true
-      file.path.should == 'Shared/subfolder1'
+      #expect(file.is_a?(Egnyte::Folder)).to be true
+      expect(file).to be_instance_of(Egnyte::Folder)
+      expect(file.path).to eq('Shared/subfolder1')
     end
   end
 end

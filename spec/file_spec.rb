@@ -18,7 +18,7 @@ describe Egnyte::File do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:body => File.read('./spec/fixtures/list_file.json'), :status => 200)
 
-      @client.file('/Shared/example.txt').name.should == 'example.txt'
+      expect(@client.file('/Shared/example.txt').name).to eq('example.txt')
     end
 
     it "should raise FileOrFolderNotFound error for a non-existent file" do
@@ -26,7 +26,7 @@ describe Egnyte::File do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:status => 404)
 
-      lambda {@client.file('Shared/banana.txt')}.should raise_error( Egnyte::FileFolderNotFound ) 
+      expect{@client.file('Shared/banana.txt')}.to raise_error( Egnyte::FileFolderNotFound ) 
     end
 
     it "should raise FileExpected if path to folder provided" do
@@ -34,7 +34,7 @@ describe Egnyte::File do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:body => File.read('./spec/fixtures/list_folder.json'), :status => 200)
 
-      lambda {@client.file('/Shared')}.should raise_error( Egnyte::FileExpected ) 
+      expect{@client.file('/Shared')}.to raise_error( Egnyte::FileExpected ) 
     end
   end
 
