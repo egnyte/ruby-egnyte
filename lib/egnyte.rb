@@ -14,6 +14,7 @@ require "egnyte/client"
 require "egnyte/item"
 require "egnyte/folder"
 require "egnyte/file"
+require "egnyte/folder_structure"
 
 module Egnyte
 end
