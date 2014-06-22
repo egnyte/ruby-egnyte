@@ -1,0 +1,20 @@
+{
+	"id":12408258604,
+	"userName":"afisher",
+	"externalId":"afisher",
+	"email":"afisher@example.com",
+	"name":{
+		"formatted":"Alberta Fisher",
+		"familyName":"Fisher",
+		"givenName":"Alberta"
+	},
+	"active":false,
+	"locked":false,
+	"emailChangePending":true,
+	"authType":"sso",
+	"userType":"power",
+	"idpUserId":"afisher",
+	"userPrincipalName":null,
+	"expiryDate":null,
+	"deleteOnExpiry":null
+}

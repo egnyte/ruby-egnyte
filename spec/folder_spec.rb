@@ -74,7 +74,7 @@ describe Egnyte::Folder do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:status => 404)
 
-      expect {@client.folder('banana')}.to raise_error( Egnyte::FileFolderNotFound ) 
+      expect {@client.folder('banana')}.to raise_error( Egnyte::RecordNotFound ) 
     end
 
     it "should raise FolderExpected if path to file provided" do

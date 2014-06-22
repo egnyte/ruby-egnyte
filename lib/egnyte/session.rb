@@ -23,9 +23,13 @@ module Egnyte
       if @strategy == :implicit
         @access_token = OAuth2::AccessToken.new(@client, opts[:access_token]) if opts[:access_token]
       elsif @strategy == :password
-        raise Egnyte::OAuthUsernameRequired unless @username = opts[:username]
-        raise Egnyte::OAuthPasswordRequired unless @password = opts[:password]
-        @access_token = @client.password.get_token(@username, @password)
+        if opts[:access_token]
+          @access_token = opts[:access_token]
+        else
+          raise Egnyte::OAuthUsernameRequired unless @username = opts[:username]
+          raise Egnyte::OAuthPasswordRequired unless @password = opts[:password]
+          @access_token = @client.password.get_token(@username, @password)
+        end
       end
 
     end
@@ -53,6 +57,14 @@ module Egnyte
     def post(url, body, return_parsed_response=true)
       uri = URI.parse(url)
       request = Net::HTTP::Post.new(uri.request_uri)
+      request.body = body
+      request.content_type = "application/json"
+      resp = request(uri, request, return_parsed_response)
+    end
+
+    def patch(url, body, return_parsed_response=true)
+      uri = URI.parse(url)
+      request = Net::HTTP::Patch.new(uri.request_uri)
       request.body = body
       request.content_type = "application/json"
       resp = request(uri, request, return_parsed_response)
@@ -117,9 +129,9 @@ module Egnyte
       when 403
         raise InsufficientPermissions.new(parsed_body)
       when 404
-        raise FileFolderNotFound.new(parsed_body)
+        raise RecordNotFound.new(parsed_body)
       when 405
-        raise FileFolderDuplicateExists.new(parsed_body)
+        raise DuplicateRecordExists.new(parsed_body)
       when 413
         raise FileSizeExceedsLimit.new(parsed_body)
       end
@@ -128,6 +140,7 @@ module Egnyte
       raise RequestError.new(parsed_body) if status >= 400
 
       parsed_body
+      
     end
 
   end

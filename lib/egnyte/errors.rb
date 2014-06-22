@@ -12,14 +12,15 @@ module Egnyte
   class UnsupportedAuthStrategy < StandardError; end
   class FileExpected < StandardError; end
   class FolderExpected < StandardError; end
-  class FileFolderNotFound < EgnyteError; end
+  class RecordNotFound < EgnyteError; end
   class RequestError < EgnyteError; end
   class BadRequest < EgnyteError; end
   class NotAuthorized < EgnyteError; end
   class InsufficientPermissions < EgnyteError; end
-  class FileFolderDuplicateExists < EgnyteError; end
+  class DuplicateRecordExists < EgnyteError; end
   class FileSizeExceedsLimit < EgnyteError; end
   class DomainRequired < EgnyteError; end
-  class OAuthUsernameRequired < EgnyteError; end
-  class OAuthPasswordRequired < EgnyteError; end
+  class OAuthUsernameRequired < StandardError; end
+  class OAuthPasswordRequired < StandardError; end
+  class MissingAttribute < EgnyteError; end
 end

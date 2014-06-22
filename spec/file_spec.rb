@@ -26,7 +26,7 @@ describe Egnyte::File do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:status => 404)
 
-      expect{@client.file('Shared/banana.txt')}.to raise_error( Egnyte::FileFolderNotFound ) 
+      expect{@client.file('Shared/banana.txt')}.to raise_error( Egnyte::RecordNotFound ) 
     end
 
     it "should raise FileExpected if path to folder provided" do

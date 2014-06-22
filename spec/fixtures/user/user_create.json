@@ -1,0 +1,20 @@
+{
+	"id":12163350648,
+	"userName":"userA",
+	"externalId":null,
+	"email":"userA@example.com",
+	"name":{
+		"formatted":"user A",
+		"familyName":"A",
+		"givenName":"user"
+	},
+	"active":true,
+	"locked":false,
+	"emailChangePending":null,
+	"authType":"egnyte",
+	"userType":"power",
+	"idpUserId":null,
+	"userPrincipalName":null,
+	"expiryDate":null,
+	"deleteOnExpiry":null
+}
