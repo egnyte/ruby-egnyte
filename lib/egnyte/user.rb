@@ -140,6 +140,9 @@ module Egnyte
         next if instance_variable_get(iv) == nil || instance_variable_get(iv) == ''
         if [:@email, :@formatted, :@givenName, :@familyName, :@active, :@authType, :@userType, :@idpUserId, :@userPrincipalName].include? iv
           next if [:@formatted, :@givenName, :@familyName].include? iv  # temporary fix since API does not properly respond for these fields.
+          next if (iv == :@userPrincipalName || iv == :@idpUserId) && @authType == 'egnyte'
+          next if iv == :@userPrincipalName && (@authType == 'sso' || @authType == 'egnyte')
+          next if iv == :@idpUserId && (@authType == 'ad' || @authType == 'egnyte')
           hash[iv.to_s[1..-1]] = instance_variable_get(iv)
         end
       end
