@@ -101,7 +101,7 @@ module Egnyte
     end
 
     def delete
-      self.delete(@session, @id)
+      Egnyte::User.delete(@session, @id)
     end
 
     def self.delete(session, id)
