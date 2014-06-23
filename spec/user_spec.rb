@@ -121,7 +121,7 @@ describe Egnyte::User do
 
   describe "#User::where" do
 
-    it 'should find users that match the search criteria' do
+    it 'should find users that match the where filter' do
       stub_request(:get, "https://test.egnyte.com/pubapi/v2/users?count=100&filter=email%20eq%20%22afisher@example.com%22&startIndex=1")
          .with(:headers => {'Authorization'=>'Bearer access_token'})
          .to_return(:status => 200, :body => File.read('./spec/fixtures/user/user_by_email.json'), :headers => {})
@@ -137,6 +137,29 @@ describe Egnyte::User do
          .with(:headers => {'Authorization'=>'Bearer access_token'})
          .to_return(:status => 200, :body => '{"startIndex":1,"totalResults":0,"itemsPerPage":100,"resources":[]}', :headers => {})
       user_list = Egnyte::User.where(@session, {email: 'FakeEmailThatDoesNotExist'})
+      expect(user_list).to be_an Array
+      expect(user_list.size).to eq 0
+    end
+
+  end
+
+  describe "#User::search" do
+
+    before(:each) do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v2/users?count=100&startIndex=1")
+          .with(:headers => { 'Authorization' => 'Bearer access_token' })
+          .to_return(:body => File.read('./spec/fixtures/user/user_all.json'), :status => 200)
+    end
+
+    it 'should find users that match the search criteria' do
+      user_list = Egnyte::User.search(@session, 'example.com')
+      expect(user_list).to be_an Array
+      expect(user_list.first).to be_an Egnyte::User
+      expect(user_list.size).to eq 50
+    end
+
+    it 'should return an empty array if no match is found' do
+      user_list = Egnyte::User.search(@session, 'NonexistantSearchCriteria')
       expect(user_list).to be_an Array
       expect(user_list.size).to eq 0
     end

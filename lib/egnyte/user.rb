@@ -88,6 +88,23 @@ module Egnyte
       user_list
     end
 
+    def self.search(session, search_string)
+      user_list = self.all(session)
+      result_list = []
+      user_list.each do |user|
+        catch(:found) do 
+          user.instance_variables.each do |ivar|
+            value = user.instance_variable_get(ivar).to_s
+            if value.match(search_string)
+              result_list << user
+              throw :found
+            end
+          end
+        end
+      end
+      result_list
+    end
+
     def save
       raise Egnyte::MissingAttribute.new(missing_attributes) unless valid?
       response = ''
