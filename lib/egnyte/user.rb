@@ -1,7 +1,5 @@
 module Egnyte
 
-  # How to convert a user to SSO?
-
   class Client
 
     def users
@@ -10,6 +8,10 @@ module Egnyte
 
     def users_where(params)
       User::where(@session, params)
+    end
+
+    def search_users(search_string)
+      User::search(@session, search_string)
     end
 
     def user(id)
@@ -141,7 +143,8 @@ module Egnyte
       instance_variables.each do |iv|
         next if iv == :@session
         next if instance_variable_get(iv) == nil
-        if [:@formatted, :@givenName, :@familyName].include? iv
+        next if iv == :@formatted
+        if [:@givenName, :@familyName].include? iv
           hash[:name][iv.to_s[1..-1]] = instance_variable_get(iv)
         else
           hash[iv.to_s[1..-1]] = instance_variable_get(iv)
@@ -151,18 +154,23 @@ module Egnyte
     end
 
     def to_json_for_update
-      hash = {}
+      hash = {name:{}}
       instance_variables.each do |iv|
         # next if [:@session, :@id, :@userName, :@sendInvite, :@userPrincipalName, :@emailChangePending, :@locked, :@externalId].include? iv
         next if instance_variable_get(iv) == nil || instance_variable_get(iv) == ''
         if [:@email, :@formatted, :@givenName, :@familyName, :@active, :@authType, :@userType, :@idpUserId, :@userPrincipalName].include? iv
-          next if [:@formatted, :@givenName, :@familyName].include? iv  # temporary fix since API does not properly respond for these fields.
+          next if [:@formatted].include? iv  # API does not respond to this field.
           next if (iv == :@userPrincipalName || iv == :@idpUserId) && @authType == 'egnyte'
-          next if iv == :@userPrincipalName && (@authType == 'sso' || @authType == 'egnyte')
-          next if iv == :@idpUserId && (@authType == 'ad' || @authType == 'egnyte')
-          hash[iv.to_s[1..-1]] = instance_variable_get(iv)
+          next if iv == :@userPrincipalName #&& (@authType == 'sso' || @authType == 'egnyte')
+          next if iv == :@idpUserId #&& (@authType == 'ad' || @authType == 'egnyte')
+          if [:@givenName, :@familyName].include? iv
+            hash[:name][iv.to_s[1..-1]] = instance_variable_get(iv)
+          else
+            hash[iv.to_s[1..-1]] = instance_variable_get(iv)
+          end
         end
       end
+      puts hash.to_json
       hash.to_json
     end
 
