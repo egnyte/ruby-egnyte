@@ -123,6 +123,14 @@ module Egnyte
       Egnyte::User.delete(@session, @id)
     end
 
+    def links
+      Egnyte::Link.where(@session, {username: @userName})
+    end
+
+    def self.links(session, id)
+      Egnyte::User.find(session, id).links
+    end
+
     def self.delete(session, id)
       session.delete("#{self.user_path(session)}/#{id}", return_parsed_response=true)
     end
@@ -170,12 +178,11 @@ module Egnyte
           end
         end
       end
-      puts hash.to_json
       hash.to_json
     end
 
     def user_path
-      "https://#{@session.domain}.egnyte.com/#{@session.api}/v2/users"
+      Egnyte::User.user_path(@session)
     end
 
     def self.user_path(session)

@@ -178,6 +178,20 @@ describe Egnyte::User do
     
   end
 
+  describe "#User::links" do
+
+    it 'should find link associated with this user' do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v2/users/12408258604")
+        .with(:headers => {'Authorization'=>'Bearer access_token'})
+        .to_return(:status => 200, :body => File.read('./spec/fixtures/user/user_find.json'), :headers => {})
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/links?username=afisher")
+        .with(:headers => {'Authorization'=>'Bearer access_token'})
+        .to_return(:status => 200, :body => File.read('./spec/fixtures/link/link_list.json'), :headers => {})
+      Egnyte::User.links(@session, 12408258604)
+    end
+    
+  end
+
   describe "#to_json" do
 
     it 'should render a valid json representation of the user' do
@@ -189,10 +203,8 @@ describe Egnyte::User do
   describe "#to_json_for_update" do
 
     it 'should render a valid json representation of the user for fields that can be updated' do
-      expect(@user.to_json_for_update).to eq "{\"email\":\"userA@example.com\",\"authType\":\"egnyte\",\"userType\":\"power\",\"active\":true}"
+      expect(@user.to_json_for_update).to eq "{\"name\":{\"familyName\":\"A\",\"givenName\":\"user\"},\"email\":\"userA@example.com\",\"authType\":\"egnyte\",\"userType\":\"power\",\"active\":true}"
     end
-
-    it 'should support user name fields once the API is fixed' # "{\"name\":{\"familyName\":\"A\",\"givenName\":\"user\"}" ##
   
   end
 
