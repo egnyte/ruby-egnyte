@@ -14,6 +14,10 @@ describe Egnyte::Helper do
   end
 
   describe "#params_to_s" do
+    it 'should convert a parameters hash to an properly formatted params query string' do
+      expect(Egnyte::Helper.params_to_s({email: 'test@egnyte.com'})).to eq "?email=test@egnyte.com"
+      # expect(Egnyte::Helper.params_to_filter_string({authType: 'ad', userType: 'power'})).to eq "?filter=authType%20eq%20%22ad%22&filter=userType%20eq%20%22power%22"
+    end
   end
 
   describe "#params_to_filter_string" do

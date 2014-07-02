@@ -12,6 +12,7 @@ module Egnyte
       if params
         str = "?"
         params.each_with_index do |(k,v),i|
+          v.split('|') if v.instance_of? Array
           str += URI.escape("#{k}=#{v}")
           str += "&" unless i == params.size - 1
         end

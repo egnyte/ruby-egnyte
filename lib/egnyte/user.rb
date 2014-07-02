@@ -181,12 +181,25 @@ module Egnyte
       hash.to_json
     end
 
+    def permissions(folder_path)
+      url = "#{user_permission_path}/#{userName}?folder=#{CGI.escape(folder_path)}"
+      @session.get(url, return_parsed_response=true)
+    end
+
     def user_path
       Egnyte::User.user_path(@session)
     end
 
     def self.user_path(session)
       "https://#{session.domain}.egnyte.com/#{session.api}/v2/users"
+    end
+
+    def user_permission_path
+      Egnyte::User.user_permission_path(@session)
+    end
+
+    def self.user_permission_path(session)
+      "https://#{session.domain}.egnyte.com/#{session.api}/v1/perms/user"
     end
 
   end

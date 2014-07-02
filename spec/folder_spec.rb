@@ -86,6 +86,31 @@ describe Egnyte::Folder do
     end
   end
 
+  describe "Folder::permissions" do
+    it "should return a folder permissions object if the folder exists" do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => File.read('./spec/fixtures/list_folder.json'), :status => 200)
+      expect(@client.folder.name).to eq('docs')
+    end
+
+    it "should raise FileOrFolderNotFound error for a non-existent folder" do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/banana")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:status => 404)
+
+      expect {@client.folder('banana')}.to raise_error( Egnyte::RecordNotFound ) 
+    end
+
+    it "should raise FolderExpected if path to file provided" do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => File.read('./spec/fixtures/list_file.json'), :status => 200)
+
+      expect {@client.folder}.to raise_error( Egnyte::FolderExpected ) 
+    end
+  end
+
   describe "#files" do
     it "should return an array of file objects" do
       stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared")
@@ -94,7 +119,6 @@ describe Egnyte::Folder do
 
       folder = @client.folder
       file = folder.files.first
-      #file.is_a?(Egnyte::File).should == true
       expect(file).to be_instance_of(Egnyte::File)
       expect(file.path).to eq('Shared/test.txt')
     end
@@ -118,9 +142,41 @@ describe Egnyte::Folder do
 
       folder = @client.folder
       file = folder.folders.first
-      #expect(file.is_a?(Egnyte::Folder)).to be true
       expect(file).to be_instance_of(Egnyte::Folder)
       expect(file.path).to eq('Shared/subfolder1')
     end
   end
+
+  context "permissions" do
+    before(:each) do 
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => File.read('./spec/fixtures/list_folder.json'), :status => 200)
+    end
+  
+    describe "#permissions" do
+      it "should returned a parsed list permissions" do
+        stub_request(:get, "https://test.egnyte.com/pubapi/v1/perms/folder/Shared")
+          .with(:headers => { 'Authorization' => 'Bearer access_token' })
+          .to_return(:body => File.read('./spec/fixtures/permission/permission_list.json'), :status => 200)
+        folder = Egnyte::Folder.find(@session, 'Shared')
+        permissions = folder.permissions
+        expect(permissions).to eq JSON.parse(File.read('./spec/fixtures/permission/permission_list.json'))
+      end
+    end
+
+    describe "#set_permission" do
+      it "should take a permission object and apply it to the folder" do
+        stub_request(:post, "https://test.egnyte.com/pubapi/v1/perms/folder/Shared")
+          .with(:headers => { 'Authorization' => 'Bearer access_token' })
+          .to_return(:body => {}, :status => 200)
+        perm_obj = Egnyte::Permission.new({users: ['thintz'], permission: 'Viewer'})
+        folder = Egnyte::Folder.find(@session, 'Shared')
+        expect(folder).to receive(:set_permission)
+        folder.set_permission(perm_obj)
+      end
+    end
+
+  end
+
 end

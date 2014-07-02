@@ -44,6 +44,16 @@ module Egnyte
       create_objects(Folder, 'folders')
     end
 
+    def move(destination_path)
+      folder_path = "#{fs_path}#{URI.escape(path)}"
+      move_or_copy(folder_path, destination_path, 'move_folder')
+    end
+
+    def copy(destination_path)
+      folder_path = "#{fs_path}#{URI.escape(path)}"
+      move_or_copy(folder_path, destination_path, 'copy_folder')
+    end
+
     def self.find(session, path)
       path = Egnyte::Helper.normalize_path(path)
 
@@ -58,6 +68,17 @@ module Egnyte
       folder.update_data(parsed_body)
     end
 
+    def permissions(params=nil)
+      path = Egnyte::Helper.normalize_path(@data['path'])
+      path += Egnyte::Helper.params_to_filter_string(params) if params
+      @session.get("#{permission_path}/#{URI.escape(path)}")
+    end
+
+    def set_permission(permission_object)
+      puts "#{permission_path}#{URI.escape(path)}"
+      @session.post("#{permission_path}/#{URI.escape(path)}", permission_object.to_json, false)
+    end
+
     private
 
     def create_objects(klass, key)
@@ -69,5 +90,10 @@ module Egnyte
         klass.new(data, @session)
       end
     end
+
+    def permission_path
+      "https://#{@session.domain}.egnyte.com/#{@session.api}/v1/perms/folder"
+    end
+
   end
 end

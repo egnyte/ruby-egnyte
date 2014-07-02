@@ -108,8 +108,7 @@ module Egnyte
       # two requests per second.
       sleep(@backoff)
 
-      parsed_response = parse_response( response.code.to_i, response.body )
-      return_parsed_response ? parsed_response : response
+      return_parsed_response ? parse_response( response.code.to_i, response.body ) : response
     end
 
     def parse_response( status, body )
