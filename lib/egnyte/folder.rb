@@ -1,4 +1,11 @@
 module Egnyte
+
+  class Client
+    def folder(path='Shared')
+      Folder::find(@session, path)
+    end
+  end
+
   class Folder < Item
     def create(path)
       path = Egnyte::Helper.normalize_path(path)
@@ -44,16 +51,6 @@ module Egnyte
       create_objects(Folder, 'folders')
     end
 
-    def move(destination_path)
-      folder_path = "#{fs_path}#{URI.escape(path)}"
-      move_or_copy(folder_path, destination_path, 'move_folder')
-    end
-
-    def copy(destination_path)
-      folder_path = "#{fs_path}#{URI.escape(path)}"
-      move_or_copy(folder_path, destination_path, 'copy_folder')
-    end
-
     def self.find(session, path)
       path = Egnyte::Helper.normalize_path(path)
 
@@ -75,7 +72,6 @@ module Egnyte
     end
 
     def set_permission(permission_object)
-      puts "#{permission_path}#{URI.escape(path)}"
       @session.post("#{permission_path}/#{URI.escape(path)}", permission_object.to_json, false)
     end
 
