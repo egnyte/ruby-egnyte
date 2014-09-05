@@ -27,7 +27,7 @@ module Egnyte
   class Link
 
     @@required_attributes = ['path', 'type', 'accessibility']
-    attr_accessor :path, :type, :accessibility, :send_email, :recipients, :messages, :copy_me, :notify, :link_to_current, :expiry_date, :expiry_clicks, :add_filename
+    attr_accessor :path, :type, :accessibility, :send_email, :recipients, :messages, :copy_me, :notify, :link_to_current, :expiry_date, :expiry_clicks, :add_filename, :creation_date
     attr_reader :id
 
     def initialize(session, params)
@@ -42,8 +42,8 @@ module Egnyte
     end
 
     def self.create(session, params)
-      user = self.new(session, params)
-      user.save
+      link = self.new(session, params)
+      link.save
     end
 
     def self.find(session, id)
