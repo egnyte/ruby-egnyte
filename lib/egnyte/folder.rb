@@ -4,28 +4,42 @@ module Egnyte
     def folder(path='Shared')
       Folder::find(@session, path)
     end
+
+    def create_folder(path)
+      Folder::create(@session, path)
+    end
+
+    def delete_folder(path)
+      Folder::delete(@session, path)
+    end
   end
 
   class Folder < Item
     def create(path)
       path = Egnyte::Helper.normalize_path(path)
-
       new_folder_path = "#{self.path}/#{path}"
+      Egnyte::Folder.create(@session, new_folder_path)
+    end
 
-      @session.post("#{fs_path}#{URI.escape(new_folder_path)}", JSON.dump({
+    def self.create(session, path)      
+      session.post("#{Egnyte::Item.fs_path(session)}#{URI.escape(path)}", JSON.dump({
         action: 'add_folder'
       }))
 
       Folder.new({
-        'path' => new_folder_path,
+        'path' => path,
         'folders' => [],
         'is_folder' => true,
-        'name' => new_folder_path.split('/').pop
-      }, @session)
+        'name' => path.split('/').pop
+      }, session)
     end
 
     def delete
-      @session.delete("#{fs_path}/#{URI.escape(path)}")
+      Egnyte::Folder.delete(@session, path)
+    end
+
+    def self.delete(session, path)      
+      session.delete("#{Egnyte::Item.fs_path(session)}/#{URI.escape(path)}")
     end
 
     def upload(filename, content)

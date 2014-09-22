@@ -16,7 +16,11 @@ module Egnyte
 
     # mode can be either fs, or fs-content.
     def fs_path(mode='fs')
-      "https://#{@session.domain}.egnyte.com/#{@session.api}/v1/#{mode}/"
+      Egnyte::Item.fs_path(@session, mode)
+    end
+
+    def self.fs_path(session, mode='fs')
+      "https://#{session.domain}.egnyte.com/#{session.api}/v1/#{mode}/"
     end
 
     def move_or_copy(destination_path, action)
