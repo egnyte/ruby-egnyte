@@ -19,6 +19,7 @@ module Egnyte
   class InsufficientPermissions < EgnyteError; end
   class DuplicateRecordExists < EgnyteError; end
   class FileSizeExceedsLimit < EgnyteError; end
+  class ClientIdRequired < EgnyteError; end
   class DomainRequired < EgnyteError; end
   class OAuthUsernameRequired < StandardError; end
   class OAuthPasswordRequired < StandardError; end
