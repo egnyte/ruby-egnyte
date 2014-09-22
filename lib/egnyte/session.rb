@@ -1,7 +1,11 @@
+require 'os'
+require 'rest_client'
+
 module Egnyte
   class Session
 
     attr_accessor :domain, :api
+    attr_reader :access_token
 
     def initialize(opts, strategy=:implicit, backoff=0.5)
 
@@ -24,11 +28,23 @@ module Egnyte
         @access_token = OAuth2::AccessToken.new(@client, opts[:access_token]) if opts[:access_token]
       elsif @strategy == :password
         if opts[:access_token]
-          @access_token = opts[:access_token]
+          @access_token = OAuth2::AccessToken.new(@client, opts[:access_token])
         else
           raise Egnyte::OAuthUsernameRequired unless @username = opts[:username]
           raise Egnyte::OAuthPasswordRequired unless @password = opts[:password]
-          @access_token = @client.password.get_token(@username, @password)
+          if true #OS.windows?
+            token_request_params = {
+              :client_id => opts[:key],
+              :username => @username,
+              :password => @password,
+              :grant_type => 'password'
+            }
+            response = RestClient.post "https://#{@domain}.egnyte.com/puboauth/token", token_request_params
+            token = JSON.parse(response)["access_token"]
+            @access_token = OAuth2::AccessToken.new(@client, token)
+          else
+            @access_token = @client.password.get_token(@username, @password)
+          end
         end
       end
 
@@ -98,6 +114,11 @@ module Egnyte
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       http.ssl_version = :SSLv3
+      if OS.windows? # Use provided certificate on Windows where gem doesn't have access to a cert store.
+        http.cert_store = OpenSSL::X509::Store.new
+        http.cert_store.set_default_paths
+        http.cert_store.add_file("#{::File.dirname(__FILE__)}/../../includes/cacert.pem")
+      end
       #http.set_debug_output($stdout)
       
       request.add_field('Authorization', "Bearer #{@access_token.token}")
@@ -105,7 +126,7 @@ module Egnyte
       response = http.request(request)
 
       # Egnyte throttles requests to
-      # two requests per second.
+      # two requests per second by default.
       sleep(@backoff)
 
       return_parsed_response ? parse_response( response.code.to_i, response.body ) : response
