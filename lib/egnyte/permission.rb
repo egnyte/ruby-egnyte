@@ -94,6 +94,10 @@ module Egnyte
       return @data['users'].size > 0 || @data['groups'].size > 0
     end
 
+    def empty?
+      return !has_data?
+    end
+
     def to_hash
       @data
     end
