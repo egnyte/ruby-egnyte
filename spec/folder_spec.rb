@@ -161,19 +161,22 @@ describe Egnyte::Folder do
           .to_return(:body => File.read('./spec/fixtures/permission/permission_list.json'), :status => 200)
         folder = Egnyte::Folder.find(@session, 'Shared')
         permissions = folder.permissions
-        expect(permissions).to eq JSON.parse(File.read('./spec/fixtures/permission/permission_list.json'))
+        expect(permissions.class).to eq Egnyte::Permission
+        expect(permissions.data['groups'].size).to eq 2
+        expect(permissions.data['users'].size).to eq 66
+        expect(permissions.data['users']['knikolaus']).to eq "Owner"
       end
     end
 
-    describe "#set_permission" do
-      it "should take a permission object and apply it to the folder" do
+    describe "#apply_permission" do
+      it "should call the apply method in Egnyte::Permission" do
         stub_request(:post, "https://test.egnyte.com/pubapi/v1/perms/folder/Shared")
           .with(:headers => { 'Authorization' => 'Bearer access_token' })
           .to_return(:body => {}, :status => 200)
-        perm_obj = Egnyte::Permission.new({users: ['thintz'], permission: 'Viewer'})
+        perm_obj = Egnyte::Permission.build_from_api_listing({'users' => [{'subject' => 'thintz', 'permission' => 'Viewer'}]})
         folder = Egnyte::Folder.find(@session, 'Shared')
-        expect(folder).to receive(:set_permission)
-        folder.set_permission(perm_obj)
+        expect(Egnyte::Permission).to receive(:apply)
+        folder.apply_permissions(perm_obj)
       end
     end
 

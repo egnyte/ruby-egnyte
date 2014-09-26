@@ -10,6 +10,7 @@ module Egnyte
   end
 
   class UnsupportedAuthStrategy < StandardError; end
+  class InvalidParameters < StandardError; end
   class FileExpected < StandardError; end
   class FolderExpected < StandardError; end
   class RecordNotFound < EgnyteError; end

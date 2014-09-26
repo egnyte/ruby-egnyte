@@ -80,13 +80,15 @@ module Egnyte
     end
 
     def permissions(params=nil)
-      path = Egnyte::Helper.normalize_path(@data['path'])
-      path += Egnyte::Helper.params_to_filter_string(params) if params
-      @session.get("#{permission_path}/#{URI.escape(path)}")
+      Egnyte::Permission.folder_permissions(@session, @data['path'])
     end
 
-    def set_permission(permission_object)
-      @session.post("#{permission_path}/#{URI.escape(path)}", permission_object.to_json, false)
+    def original_permissions(params=nil)
+      Egnyte::Permission.original_permissions(@session, @data['path'])
+    end
+
+    def apply_permissions(permission_object)
+      Egnyte::Permission.apply(@session, permission_object, @data['path'])
     end
 
     private
@@ -99,10 +101,6 @@ module Egnyte
         })
         klass.new(data, @session)
       end
-    end
-
-    def permission_path
-      "https://#{@session.domain}.egnyte.com/#{@session.api}/v1/perms/folder"
     end
 
   end
