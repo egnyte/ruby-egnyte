@@ -21,7 +21,8 @@ module Egnyte
       Egnyte::Folder.create(@session, new_folder_path)
     end
 
-    def self.create(session, path)      
+    def self.create(session, path)
+      path = Egnyte::Helper.normalize_path(path)
       session.post("#{Egnyte::Item.fs_path(session)}#{URI.escape(path)}", JSON.dump({
         action: 'add_folder'
       }))

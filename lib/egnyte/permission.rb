@@ -127,7 +127,7 @@ module Egnyte
           tmp_hash['users']  = permissions_set['users'][level] unless permissions_set['users'][level].empty?
           tmp_hash['groups'] = permissions_set['groups'][level] unless permissions_set['groups'][level].empty?
           tmp_hash['permission'] = level
-          unless tmp_hash['users'].empty? and tmp_hash['groups'].empty?
+          unless tmp_hash['users'].nil? and tmp_hash['groups'].nil?
             session.post("#{self.permission_path(session)}/#{URI.escape(target_path)}", tmp_hash.to_json, false)
           end
         end
