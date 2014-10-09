@@ -14,6 +14,7 @@ module Egnyte
     #     'partners': 'Viewer'
     #   }
     # }
+    @@valid_perm_levels = ["None", "Viewer", "Editor", "Full", "Owner"]
 
     def initialize(permissions_hash={})
       raise Egnyte::InvalidParameters unless (permissions_hash.empty? or permissions_hash['users'] or permissions_hash['groups'])
@@ -27,7 +28,8 @@ module Egnyte
       raise Egnyte::InvalidParameters unless new_perm_set.class == Hash
       new_perm_set.each do |type, perms_hash|
         perms_hash.each do |username, permission|
-          old_perm_set[type][username] = permission
+          permission.capitalize!
+          old_perm_set[type][username] = permission if ["None", "Viewer", "Editor", "Full", "Owner"].include? permission
         end
       end
       old_perm_set
@@ -122,7 +124,7 @@ module Egnyte
     def self.apply(session, permission_object, target_path)
       if permission_object.valid? and permission_object.has_data?
         permissions_set = transfrom_by_perm_level(permission_object)
-        ["Viewer", "Editor", "Full", "Owner"].each do |level|
+        @@valid_perm_levels.each do |level|
           tmp_hash = {}
           tmp_hash['users']  = permissions_set['users'][level] unless permissions_set['users'][level].empty?
           tmp_hash['groups'] = permissions_set['groups'][level] unless permissions_set['groups'][level].empty?

@@ -17,15 +17,21 @@ describe Egnyte::Permission do
           "dpfeffer" => "Editor" 
         }
     }
-    @valid_permission_structure_from_api = {
-        "users" => [
-            { "subject" => "david", "permission" => "Owner" },
-            { "subject" => "dpfeffer", "permission" => "Editor" }
-        ],
-        "groups" => [
-            { "subject" => "Test Group", "permission" => "Editor" }
-        ]
+    @lowercase_permission_hash = {
+        "users" => {
+            "david" => "owner",
+            "dpfeffer" => "editor"
+        },
+        "groups" => { "Test Group" => "editor" }
     }
+    @crazy_permission_hash = {
+        "users" => {
+            "david" => "crazy",
+            "dpfeffer" => "Viewer"
+        },
+        "groups" => { "Test Group" => "perms" }
+    }
+    @valid_permission_structure_from_api = JSON.parse(File.read('./spec/fixtures/permission/permission_list.json'))
     @session = Egnyte::Session.new({
       key: 'api_key',
       domain: 'test',
@@ -46,8 +52,19 @@ describe Egnyte::Permission do
       expect {Egnyte::Permission.new(@invalid_permission_hash)}.to raise_error( Egnyte::InvalidParameters ) 
     end
 
+    it 'drops invalid permission levels' do
+      @permission = Egnyte::Permission.new(@crazy_permission_hash)
+      expect(@permission.data["users"]["dpfeffer"]).to eq "Viewer"
+      expect(@permission.data["users"]["david"]).to be nil
+    end
+
+    it 'capitalizes the first letter of permission levels' do
+      @permission = Egnyte::Permission.new(@lowercase_permission_hash)
+      expect(@permission.data["users"]["david"]).to eq "Owner"
+    end
+
     it 'can construct a valid permission listing response from the API' do
-      perm = Egnyte::Permission.new(@valid_permission_structure_from_api)
+      perm = Egnyte::Permission.build_from_api_listing(@valid_permission_structure_from_api)
       expect(perm.valid?).to be true
       expect(perm.has_data?).to be true
     end
