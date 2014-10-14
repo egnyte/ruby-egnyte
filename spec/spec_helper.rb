@@ -1,3 +1,6 @@
+require 'simplecov'
+SimpleCov.start
+
 require 'egnyte'
 require 'webmock/rspec'
 
