@@ -113,7 +113,6 @@ module Egnyte
     def request(uri, request, return_parsed_response=true)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
-      http.ssl_version = :SSLv3
       if OS.windows? # Use provided certificate on Windows where gem doesn't have access to a cert store.
         http.cert_store = OpenSSL::X509::Store.new
         http.cert_store.set_default_paths
