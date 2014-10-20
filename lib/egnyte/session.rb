@@ -19,7 +19,7 @@ module Egnyte
       raise Egnyte::DomainRequired unless @domain = opts[:domain]
 
       @client = OAuth2::Client.new(opts[:key], nil, {
-        :site => "https://#{@domain}.egnyte.com",
+        :site => "https://#{@domain}.#{EGNYTE_DOMAIN}",
         :authorize_url => "/puboauth/token",
         :token_url => "/puboauth/token"
       })
@@ -39,7 +39,7 @@ module Egnyte
               :password => @password,
               :grant_type => 'password'
             }
-            response = RestClient.post "https://#{@domain}.egnyte.com/puboauth/token", token_request_params
+            response = RestClient.post "https://#{@domain}.#{EGNYTE_DOMAIN}/puboauth/token", token_request_params
             token = JSON.parse(response)["access_token"]
             @access_token = OAuth2::AccessToken.new(@client, token)
           else

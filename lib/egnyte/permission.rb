@@ -85,7 +85,7 @@ module Egnyte
     end
 
     def self.permission_path(session)
-      "https://#{session.domain}.egnyte.com/#{session.api}/v1/perms/folder"
+      "https://#{session.domain}.#{EGNYTE_DOMAIN}/#{session.api}/v1/perms/folder"
     end
 
     def valid?
@@ -124,13 +124,15 @@ module Egnyte
     def self.apply(session, permission_object, target_path)
       if permission_object.valid? and permission_object.has_data?
         permissions_set = transfrom_by_perm_level(permission_object)
-        @@valid_perm_levels.each do |level|
+        ["None", "Viewer", "Editor", "Full", "Owner"].each do |level|
           tmp_hash = {}
-          tmp_hash['users']  = permissions_set['users'][level] unless permissions_set['users'][level].empty?
-          tmp_hash['groups'] = permissions_set['groups'][level] unless permissions_set['groups'][level].empty?
+          tmp_hash['users']  = permissions_set['users'][level] unless permissions_set['users'].nil?
+          tmp_hash['groups'] = permissions_set['groups'][level] unless permissions_set['groups'].nil?
           tmp_hash['permission'] = level
           unless tmp_hash['users'].nil? and tmp_hash['groups'].nil?
-            session.post("#{self.permission_path(session)}/#{URI.escape(target_path)}", tmp_hash.to_json, false)
+            unless tmp_hash['users'].empty? and tmp_hash['groups'].empty?
+              session.post("#{self.permission_path(session)}/#{URI.escape(target_path)}", tmp_hash.to_json, false)
+            end
           end
         end
         "Permissions set on #{target_path}: #{permission_object.to_hash}"

@@ -20,7 +20,7 @@ module Egnyte
     end
 
     def self.fs_path(session, mode='fs')
-      "https://#{session.domain}.egnyte.com/#{session.api}/v1/#{mode}/"
+      "https://#{session.domain}.#{EGNYTE_DOMAIN}/#{session.api}/v1/#{mode}/"
     end
 
     def move_or_copy(destination_path, action)
