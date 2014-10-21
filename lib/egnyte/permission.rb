@@ -139,6 +139,39 @@ module Egnyte
       end
     end
 
+    def ==(other_perm_object)
+      @data == other_perm_object.data
+    end
+
+    def diff(other_perm_object)
+      only_originial = Egnyte::Permission.new
+      common_perms   = Egnyte::Permission.new
+      only_other     = Egnyte::Permission.new
+      discrepancies  = {'original' => Egnyte::Permission.new, 'other' => Egnyte::Permission.new}
+
+      # find whether permission is only in the self's set or is common between self and other
+      @data.each do |level, perm_hash|
+        perm_hash.each do |item, permission|
+          if other_perm_object.data[level][item].nil?
+            only_originial.data[level][item] = permission
+          elsif other_perm_object.data[level][item] != permission
+            discrepancies['original'].data[level][item] = permission
+            discrepancies['other'].data[level][item] = other_perm_object.data[level][item]
+          end
+          common_perms.data[level][item]   = permission if other_perm_object.data[level][item] == permission
+        end
+      end
+
+      # find whether permission is in the other_perm_object
+      other_perm_object.data.each do |level, perm_hash|
+        perm_hash.each do |item, permission|
+            only_other.data[level][item] = permission if @data[level][item].nil? || @data[level][item] != permission
+        end
+      end
+
+      [only_originial, common_perms, only_other, discrepancies]
+    end
+
   end
 
 end
