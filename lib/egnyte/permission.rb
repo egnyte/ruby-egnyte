@@ -110,8 +110,8 @@ module Egnyte
 
     def self.transfrom_by_perm_level(permission_object)
       perm_type_hash = {
-        'users' => { "Viewer" => [], "Editor" => [], "Full"   => [], "Owner"  => [] },
-        'groups' => { "Viewer" => [], "Editor" => [], "Full"   => [], "Owner"  => [] }
+        'users' => { "None" => [], "Viewer" => [], "Editor" => [], "Full"   => [], "Owner"  => [] },
+        'groups' => { "None" => [], "Viewer" => [], "Editor" => [], "Full"   => [], "Owner"  => [] }
       }
       permission_object.data.each do |type, perm|
         perm.each do |k,v|
