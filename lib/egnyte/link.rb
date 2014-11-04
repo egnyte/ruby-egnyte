@@ -102,7 +102,7 @@ module Egnyte
     end
 
     def self.link_path(session)
-      "https://#{session.domain}.egnyte.com/#{session.api}/v1/links"
+      "https://#{session.domain}.#{EGNYTE_DOMAIN}.com/#{session.api}/v1/links"
     end
 
   end
