@@ -131,7 +131,7 @@ describe Egnyte::Link do
     it 'should delete a link by id if the link exists' do
       stub_request(:delete, "https://test.egnyte.com/pubapi/v1/links/jFmtRccgU0")
         .with(:headers => {'Authorization'=>'Bearer access_token'})
-        .to_return(:status => 200, :body => {}, :headers => {})
+        .to_return(:status => 200, :body => '{}', :headers => {})
       expect(Egnyte::User).to receive(:delete)
       Egnyte::User.delete(@session, 'jFmtRccgU0')
     end

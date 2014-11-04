@@ -172,7 +172,7 @@ describe Egnyte::Folder do
       it "should call the apply method in Egnyte::Permission" do
         stub_request(:post, "https://test.egnyte.com/pubapi/v1/perms/folder/Shared")
           .with(:headers => { 'Authorization' => 'Bearer access_token' })
-          .to_return(:body => {}, :status => 200)
+          .to_return(:body => '{}', :status => 200)
         perm_obj = Egnyte::Permission.build_from_api_listing({'users' => [{'subject' => 'thintz', 'permission' => 'Viewer'}]})
         folder = Egnyte::Folder.find(@session, 'Shared')
         expect(Egnyte::Permission).to receive(:apply)
