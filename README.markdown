@@ -1,7 +1,7 @@
 Ruby Egnyte
 ===========
 
-Mainted by: [Egnyte](https://www.egnyte.com)
+Maintained by: [Egnyte](https://www.egnyte.com)
 
 A feature-rich Ruby client for the [Egnyte API](https://developers.egnyte.com/docs).  
 
