@@ -171,7 +171,7 @@ describe Egnyte::User do
     it 'should delete a user by id if the user exists' do
       stub_request(:delete, "https://test.egnyte.com/pubapi/v2/users/12408258604")
         .with(:headers => {'Authorization'=>'Bearer access_token'})
-        .to_return(:status => 200, :body => {}, :headers => {})
+        .to_return(:status => 200, :body => "", :headers => {})
       expect(Egnyte::User).to receive(:delete).and_return({})
       Egnyte::User.delete(@session, 12408258604)
     end
