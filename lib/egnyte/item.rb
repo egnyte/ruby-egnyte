@@ -24,7 +24,7 @@ module Egnyte
     end
 
     def move_or_copy(destination_path, action)
-      item_path = "#{fs_path}#{URI.escape(Egnyte::Helper.normalize_path(path))}"
+      item_path = "#{fs_path}#{Egnyte::Helper.normalize_path(path)}"
       @session.post(item_path, { action: action, destination: destination_path }.to_json, return_parsed_response=true)
     end
 

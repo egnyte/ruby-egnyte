@@ -23,7 +23,7 @@ module Egnyte
 
     def self.create(session, path)
       path = Egnyte::Helper.normalize_path(path)
-      session.post("#{Egnyte::Item.fs_path(session)}#{URI.escape(path)}", JSON.dump({
+      session.post("#{Egnyte::Item.fs_path(session)}#{path}", JSON.dump({
         action: 'add_folder'
       }))
 
@@ -40,11 +40,11 @@ module Egnyte
     end
 
     def self.delete(session, path)      
-      session.delete("#{Egnyte::Item.fs_path(session)}/#{URI.escape(path)}")
+      session.delete("#{Egnyte::Item.fs_path(session)}/#{path}")
     end
 
     def upload(filename, content)
-      resp = @session.multipart_post("#{fs_path('fs-content')}#{URI.escape(path)}/#{URI.escape(filename)}", filename, content, false)
+      resp = @session.multipart_post("#{fs_path('fs-content')}#{path}/#{filename}", filename, content, false)
 
       content.rewind # to calculate size, rewind content stream.
 
@@ -73,7 +73,7 @@ module Egnyte
         'path' => path
       }, session)
       
-      parsed_body = session.get("#{folder.fs_path}#{URI.escape(path)}")
+      parsed_body = session.get("#{folder.fs_path}#{path}")
 
       raise FolderExpected unless parsed_body['is_folder']
 

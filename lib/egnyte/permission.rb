@@ -60,7 +60,7 @@ module Egnyte
     def self.folder_permissions(session, path, params=nil)
       path = Egnyte::Helper.normalize_path(path)
       path += Egnyte::Helper.params_to_filter_string(params) if params
-      response = session.get("#{self.permission_path(session)}/#{URI.escape(path)}")
+      response = session.get("#{self.permission_path(session)}/#{path}")
       self.build_from_api_listing(response)
     end
 
@@ -131,7 +131,7 @@ module Egnyte
           tmp_hash['permission'] = level
           unless tmp_hash['users'].nil? and tmp_hash['groups'].nil?
             unless tmp_hash['users'].empty? and tmp_hash['groups'].empty?
-              session.post("#{self.permission_path(session)}/#{URI.escape(target_path)}", tmp_hash.to_json, false)
+              session.post("#{self.permission_path(session)}/#{target_path}", tmp_hash.to_json, false)
             end
           end
         end
