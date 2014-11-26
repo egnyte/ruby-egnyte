@@ -34,7 +34,7 @@ module Egnyte
     end
 
     def self.encode_url(url)
-      URI.encode(url.gsub("[","%5B").gsub("]","%5D"))
+      URI.encode(url).gsub("[","%5B").gsub("]","%5D")
     end
 
   end
