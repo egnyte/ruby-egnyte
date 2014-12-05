@@ -1,5 +1,8 @@
 module Egnyte
   class Item
+
+    attr_accessor :session
+
     def initialize(data, session)
       @data = data
       @session = session
