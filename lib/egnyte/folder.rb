@@ -84,8 +84,12 @@ module Egnyte
       Egnyte::Permission.folder_permissions(@session, @data['path'])
     end
 
-    def original_permissions(params=nil)
-      Egnyte::Permission.original_permissions(@session, @data['path'])
+    def inherited_permissions(params=nil)
+      Egnyte::Permission.inherited_permissions(@session, @data['path'])
+    end
+
+    def explicit_permissions(params=nil)
+      Egnyte::Permission.explicit_permissions(@session, @data['path'])
     end
 
     def apply_permissions(permission_object)

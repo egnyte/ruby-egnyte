@@ -70,18 +70,18 @@ module Egnyte
       self.folder_permissions(session, path, params)
     end
 
-    def self.original_permissions(session, path, params=nil)
+    def self.explicit_permissions(session, path, params=nil)
       inherited = self.inherited_permissions(session, path, params).data
       permissions = self.folder_permissions(session, path, params).data
-      original = self.empty_permissions_hash
+      explicit = self.empty_permissions_hash
 
       #filter out permissions that exist in the parent folder's permissions
       permissions.each do |type, perm|
         perm.each do |k,v|
-          original[type][k] = v unless inherited[type][k] == v
+          explicit[type][k] = v unless inherited[type][k] == v
         end
       end
-      self.new(original)
+      self.new(explicit)
     end
 
     def self.permission_path(session)
