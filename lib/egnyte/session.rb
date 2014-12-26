@@ -50,6 +50,15 @@ module Egnyte
 
     end
 
+    def info
+      information
+    end
+
+    def information
+      puts "https://#{@domain}.#{EGNYTE_DOMAIN}/#{@api}/v1/userinfo"
+      get("https://#{@domain}.#{EGNYTE_DOMAIN}/#{@api}/v1/userinfo", return_parsed_response=true)
+    end
+
     def authorize_url(redirect_uri)
       @client.implicit.authorize_url(:redirect_uri => redirect_uri)
     end
