@@ -69,7 +69,7 @@ module Egnyte
     end
 
     def delete
-      Egnyte::User.delete(@session, @id)
+      Egnyte::Link.delete(@session, @id)
     end
 
     def self.delete(session, id)
