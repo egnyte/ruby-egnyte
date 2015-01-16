@@ -1,0 +1,17 @@
+{
+	"schemas":["urn:scim:schemas:core:1.0"],
+	"totalResults":3,
+	"itemsPerPage":3,
+	"startIndex":1,
+	"resources":[{
+		"id":"8b9dd5aa-40ab-4a43-9b76-f55a412c8a6a",
+		"displayName":"IT"
+	},
+	{
+		"id":"d5ea2e76-63e4-4b47-92af-0d7ba6972e3c",
+		"displayName":"Finance"
+	},{
+		"id":"a1004249-5e29-438f-ad72-b4e90af14ee7",
+		"displayName":"Sales"
+	}]
+}

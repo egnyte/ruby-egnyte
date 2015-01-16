@@ -1,0 +1,1 @@
+{"schemas":["urn:scim:schemas:core:1.0"],"id":"5ef70bb0-edeb-4fcb-86d4-e1e1a0b6c9dc","displayName":"Test with members","members":[{"username":"test","value":9967960066,"display":"Test User"},{"username":"jdoe","value":9967960068,"display":"John Doe"}]}

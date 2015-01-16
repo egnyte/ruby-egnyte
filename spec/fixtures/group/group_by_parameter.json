@@ -1,0 +1,10 @@
+{
+	"schemas":["urn:scim:schemas:core:1.0"],
+	"totalResults":1,
+	"itemsPerPage":1,
+	"startIndex":1,
+	"resources":[{
+		"id":"d5ea2e76-63e4-4b47-92af-0d7ba6972e3c",
+		"displayName":"Finance"
+	}]
+}
