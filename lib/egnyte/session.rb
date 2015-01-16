@@ -4,7 +4,7 @@ require 'rest_client'
 module Egnyte
   class Session
 
-    attr_accessor :domain, :api
+    attr_accessor :domain, :api, :current_username
     attr_reader :access_token
 
     def initialize(opts, strategy=:implicit, backoff=0.5)
@@ -48,6 +48,8 @@ module Egnyte
         end
       end
 
+      @current_username = info["username"]
+
     end
 
     def info
@@ -55,7 +57,6 @@ module Egnyte
     end
 
     def information
-      puts "https://#{@domain}.#{EGNYTE_DOMAIN}/#{@api}/v1/userinfo"
       get("https://#{@domain}.#{EGNYTE_DOMAIN}/#{@api}/v1/userinfo", return_parsed_response=true)
     end
 
@@ -90,6 +91,14 @@ module Egnyte
     def patch(url, body, return_parsed_response=true)
       uri = URI.parse(Egnyte::Helper.encode_url(url))
       request = Net::HTTP::Patch.new(uri.request_uri)
+      request.body = body
+      request.content_type = "application/json"
+      resp = request(uri, request, return_parsed_response)
+    end
+
+    def put(url, body, return_parsed_response=true)
+      uri = URI.parse(Egnyte::Helper.encode_url(url))
+      request = Net::HTTP::Put.new(uri.request_uri)
       request.body = body
       request.content_type = "application/json"
       resp = request(uri, request, return_parsed_response)
