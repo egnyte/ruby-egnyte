@@ -108,6 +108,10 @@ module Egnyte
       to_hash.to_json
     end
 
+    def to_s
+      to_json
+    end
+
     def self.transfrom_by_perm_level(permission_object)
       perm_type_hash = {
         'users' => { "None" => [], "Viewer" => [], "Editor" => [], "Full"   => [], "Owner"  => [] },
