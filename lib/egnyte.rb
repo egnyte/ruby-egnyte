@@ -16,6 +16,7 @@ require "egnyte/folder"
 require "egnyte/file"
 require "egnyte/folder_structure"
 require "egnyte/user"
+require "egnyte/group"
 require "egnyte/link"
 require "egnyte/permission"
 
