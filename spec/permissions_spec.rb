@@ -32,6 +32,9 @@ describe Egnyte::Permission do
         "groups" => { "Test Group" => "perms" }
     }
     @valid_permission_structure_from_api = JSON.parse(File.read('./spec/fixtures/permission/permission_list.json'))
+    stub_request(:get, "https://test.egnyte.com/pubapi/v1/userinfo").
+             with(:headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization'=>'Bearer access_token', 'User-Agent'=>'Ruby'}).
+             to_return(:status => 200, :body => "", :headers => {})
     @session = Egnyte::Session.new({
       key: 'api_key',
       domain: 'test',
