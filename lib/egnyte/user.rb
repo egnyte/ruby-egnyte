@@ -192,7 +192,7 @@ module Egnyte
     end
 
     def self.user_path(session)
-      "https://#{session.domain}.#{EGNYTE_DOMAIN}/#{session.api}/v2/users"
+      "https://#{session.domain}/#{session.api}/v2/users"
     end
 
     def user_permission_path
@@ -200,7 +200,7 @@ module Egnyte
     end
 
     def self.user_permission_path(session)
-      "https://#{session.domain}.#{EGNYTE_DOMAIN}/#{session.api}/v1/perms/user"
+      "https://#{session.domain}/#{session.api}/v1/perms/user"
     end
 
   end

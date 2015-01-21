@@ -16,10 +16,16 @@ module Egnyte
       @api = 'pubapi' # currently we only support the public API.
 
       # the domain of the egnyte account to interact with.
-      raise Egnyte::DomainRequired unless @domain = opts[:domain]
+      raise Egnyte::DomainRequired unless opts_domain = opts[:domain]
+
+      if opts_domain =~ /.*\..*/
+        @domain = opts[:domain]
+      else
+        @domain = "#{opts_domain}.egnyte.com"
+      end
 
       @client = OAuth2::Client.new(opts[:key], nil, {
-        :site => "https://#{@domain}.#{EGNYTE_DOMAIN}",
+        :site => "https://#{@domain}",
         :authorize_url => "/puboauth/token",
         :token_url => "/puboauth/token"
       })
@@ -39,7 +45,7 @@ module Egnyte
               :password => @password,
               :grant_type => 'password'
             }
-            response = RestClient.post "https://#{@domain}.#{EGNYTE_DOMAIN}/puboauth/token", token_request_params
+            response = RestClient.post "https://#{@domain}/puboauth/token", token_request_params
             token = JSON.parse(response)["access_token"]
             @access_token = OAuth2::AccessToken.new(@client, token)
           else

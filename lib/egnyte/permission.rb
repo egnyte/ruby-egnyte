@@ -85,7 +85,7 @@ module Egnyte
     end
 
     def self.permission_path(session)
-      "https://#{session.domain}.#{EGNYTE_DOMAIN}/#{session.api}/v1/perms/folder"
+      "https://#{session.domain}/#{session.api}/v1/perms/folder"
     end
 
     def valid?

@@ -21,5 +21,4 @@ require "egnyte/link"
 require "egnyte/permission"
 
 module Egnyte
-	EGNYTE_DOMAIN = "egnyte.com"
 end
