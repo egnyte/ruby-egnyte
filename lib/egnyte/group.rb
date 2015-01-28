@@ -125,27 +125,14 @@ module Egnyte
         response = @session.post(group_path, to_json_for_api_call)
         @id = response['id']
       else
-        # response = @session.put("#{group_path}/#{@id}", to_json_for_api_call)
-        response = @session.put("#{group_path}/#{@id}", to_json)
+        response = @session.put("#{group_path}/#{@id}", to_json_for_api_call)
       end
       Egnyte::Group.new(@session, response)
     end
 
     def delete
-      begin
-        Egnyte::Group.delete(@session, @id)
-      rescue
-        # Egnyte::Group..delete
-      end
+      Egnyte::Group.delete(@session, @id)
     end
-
-    # def links
-    #   Egnyte::Link.where(@session, {username: @userName})
-    # end
-
-    # def self.links(session, id)
-    #   Egnyte::User.find(session, id).links
-    # end
 
     def self.delete(session, id)
       session.delete("#{self.group_path(session)}/#{id}", return_parsed_response=true)
@@ -186,11 +173,6 @@ module Egnyte
       to_hash_for_api_call.to_json
     end
 
-    # def permissions(folder_path)
-    #   url = "#{user_permission_path}/#{userName}?folder=#{CGI.escape(folder_path)}"
-    #   @session.get(url, return_parsed_response=true)
-    # end
-
     def group_path
       Egnyte::Group.group_path(@session)
     end
@@ -198,10 +180,6 @@ module Egnyte
     def self.group_path(session)
       "https://#{session.domain}.#{EGNYTE_DOMAIN}/#{session.api}/v2/groups"
     end
-
-    # def user_permission_path
-    #   Egnyte::Group.user_permission_path(@session)
-    # end
 
   end
 end
