@@ -4,7 +4,7 @@ require 'rest_client'
 module Egnyte
   class Session
 
-    attr_accessor :domain, :api, :current_username
+    attr_accessor :domain, :api, :username
     attr_reader :access_token
 
     def initialize(opts, strategy=:implicit, backoff=0.5)
@@ -48,7 +48,7 @@ module Egnyte
         end
       end
 
-      @current_username = info["username"]
+      @username = info["username"]
 
     end
 

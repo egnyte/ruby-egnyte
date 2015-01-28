@@ -44,7 +44,11 @@ module Egnyte
         @displayName = params
       elsif params.is_a? Hash
         params.each do |k,v|
-          instance_variable_set("@#{k}", v)
+          if k == "name"
+            @displayName = v
+          else
+            instance_variable_set("@#{k}", v)
+          end
         end
       end
       @members = [] if @members.nil?
@@ -57,6 +61,14 @@ module Egnyte
     def self.create(session, params)
       group = self.new(session, params)
       group.save
+    end
+
+    def name
+      @displayName
+    end
+
+    def name=(name)
+      @displayName = name
     end
 
     def self.find(session, id)
@@ -80,8 +92,8 @@ module Egnyte
         url += params.nil? ? '?' : '&'
         url += "startIndex=#{startIndex}&count=#{itemsPerPage}"
         parsed_body = session.get(url)
-        parsed_body["resources"].each do |user_hash|
-          group_list << self.new(session, user_hash)
+        parsed_body["resources"].each do |group_hash|
+          group_list << self.new(session, group_hash)
         end
         group_count = parsed_body["totalResults"]
         startIndex += itemsPerPage
@@ -113,8 +125,8 @@ module Egnyte
         response = @session.post(group_path, to_json_for_api_call)
         @id = response['id']
       else
-        response = @session.put("#{group_path}/#{@id}", to_json_for_api_call)
-        # response = @session.put("#{group_path}/#{@id}", to_json)
+        # response = @session.put("#{group_path}/#{@id}", to_json_for_api_call)
+        response = @session.put("#{group_path}/#{@id}", to_json)
       end
       Egnyte::Group.new(@session, response)
     end

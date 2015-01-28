@@ -170,7 +170,7 @@ module Egnyte
           next if [:@formatted].include? iv  # API does not respond to this field.
           next if (iv == :@userPrincipalName || iv == :@idpUserId) && @authType == 'egnyte'
           next if iv == :@userPrincipalName #&& (@authType == 'sso' || @authType == 'egnyte')
-          next if iv == :@active && @userName == @session.current_username
+          next if iv == :@active && @userName == @session.username
           next if iv == :@idpUserId #&& (@authType == 'ad' || @authType == 'egnyte')
           if [:@givenName, :@familyName].include? iv
             hash[:name][iv.to_s[1..-1]] = instance_variable_get(iv)
