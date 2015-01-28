@@ -1,5 +1,4 @@
 require 'os'
-require 'rest_client'
 
 module Egnyte
   class Session
@@ -31,24 +30,24 @@ module Egnyte
           @access_token = OAuth2::AccessToken.new(@client, opts[:access_token])
         else
           raise Egnyte::OAuthUsernameRequired unless @username = opts[:username]
-          raise Egnyte::OAuthPasswordRequired unless @password = opts[:password]
+          raise Egnyte::OAuthPasswordRequired unless opts[:password]
           if true #OS.windows?
-            token_request_params = {
+            body = {
               :client_id => opts[:key],
               :username => @username,
-              :password => @password,
+              :password => opts[:password],
               :grant_type => 'password'
-            }
-            response = RestClient.post "https://#{@domain}.#{EGNYTE_DOMAIN}/puboauth/token", token_request_params
-            token = JSON.parse(response)["access_token"]
-            @access_token = OAuth2::AccessToken.new(@client, token)
+            }.map {|k,v| "#{k}=#{v}"}.join("&")
+            url = "https://#{@domain}.#{EGNYTE_DOMAIN}/puboauth/token"
+            response = login_post(url, body, return_parsed_response=true)
+            @access_token = OAuth2::AccessToken.new(@client, response["access_token"])
           else
-            @access_token = @client.password.get_token(@username, @password)
+            @access_token = @client.password.get_token(@username, opts[:password])
           end
         end
       end
 
-      @username = info["username"]
+      @username = info["username"] unless @username
 
     end
 
@@ -85,6 +84,14 @@ module Egnyte
       request = Net::HTTP::Post.new(uri.request_uri)
       request.body = body
       request.content_type = "application/json"
+      resp = request(uri, request, return_parsed_response)
+    end
+
+    def login_post(url, body, return_parsed_response=true)
+      uri = URI.parse(Egnyte::Helper.encode_url(url))
+      request = Net::HTTP::Post.new(uri.request_uri)
+      request.body = body
+      request.content_type = "application/x-www-form-urlencoded"
       resp = request(uri, request, return_parsed_response)
     end
 
@@ -138,13 +145,17 @@ module Egnyte
       end
       #http.set_debug_output($stdout)
       
-      request.add_field('Authorization', "Bearer #{@access_token.token}")
+      unless request.content_type == "application/x-www-form-urlencoded"
+        request.add_field('Authorization', "Bearer #{@access_token.token}")
+      end
 
       response = http.request(request)
 
       # Egnyte throttles requests to
       # two requests per second by default.
       sleep(@backoff)
+
+      # puts "#{response.code.to_i} ||||| #{response.body}"
 
       return_parsed_response ? parse_response( response.code.to_i, response.body ) : response
     end
