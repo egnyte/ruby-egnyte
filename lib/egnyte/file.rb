@@ -1,4 +1,13 @@
 module Egnyte
+
+  class Client
+
+    def file(path)
+      File::find(@session, path)
+    end
+
+  end
+
   class File < Item
 
     def download
