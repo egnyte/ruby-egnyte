@@ -55,4 +55,17 @@ describe Egnyte::File do
     end
   end
 
+  describe "#delete" do
+    it "should delete the file" do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared/banana.txt")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => File.read('./spec/fixtures/list_file.json'), :status => 200)
+
+      stub_request(:delete, "https://test.egnyte.com/pubapi/v1/fs/Shared/banana.txt")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => '{"status":"no more banana"}', :status => 200)
+
+      expect(@client.file('Shared/banana.txt').delete).to eq({ "status" => "no more banana" })
+    end
+  end
 end
