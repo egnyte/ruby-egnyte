@@ -10,9 +10,11 @@ module Egnyte
 
       @strategy = strategy # the authentication strategy to use.
       raise Egnyte::UnsupportedAuthStrategy unless [:implicit, :password].include? @strategy
-      
+
       @backoff = backoff # only two requests are allowed a second by Egnyte.
       @api = 'pubapi' # currently we only support the public API.
+
+      @username = opts[:username]
 
       # the domain of the egnyte account to interact with.
       raise Egnyte::DomainRequired unless @domain = opts[:domain]
@@ -29,7 +31,7 @@ module Egnyte
         if opts[:access_token]
           @access_token = OAuth2::AccessToken.new(@client, opts[:access_token])
         else
-          raise Egnyte::OAuthUsernameRequired unless @username = opts[:username]
+          raise Egnyte::OAuthUsernameRequired unless @username
           raise Egnyte::OAuthPasswordRequired unless opts[:password]
           if true #OS.windows?
             body = {
@@ -129,7 +131,7 @@ module Egnyte
         :progress_proc => opts[:progress_proc],
         'Authorization' => "Bearer #{@access_token.token}"
       }
-      
+
       open(url, params)
     end
 
@@ -144,7 +146,7 @@ module Egnyte
         http.cert_store.add_file("#{::File.dirname(__FILE__)}/../../includes/cacert.pem")
       end
       #http.set_debug_output($stdout)
-      
+
       unless request.content_type == "application/x-www-form-urlencoded"
         request.add_field('Authorization', "Bearer #{@access_token.token}")
       end
@@ -188,7 +190,7 @@ module Egnyte
       raise RequestError.new(parsed_body) if status >= 400
 
       parsed_body
-      
+
     end
 
   end
