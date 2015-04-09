@@ -159,38 +159,37 @@ module Egnyte
 
       # puts "#{response.code.to_i} ||||| #{response.body}"
 
-      return_parsed_response ? parse_response( response.code.to_i, response.body ) : response
+
+      return_value = return_parsed_response ? parse_response_body(response.body) : response
+      parse_response_code(response.code.to_i, return_value)
+
+      return_value
     end
 
-    def parse_response( status, body )
-
-      begin
-        parsed_body = JSON.parse(body)
-      rescue
-        parsed_body = {}
-      end
-
-      # Handle known errors.
+    def parse_response_code(status, response)
       case status
       when 400
-        raise BadRequest.new(parsed_body)
+        raise BadRequest.new(response)
       when 401
-        raise NotAuthorized.new(parsed_body)
+        raise NotAuthorized.new(response)
       when 403
-        raise InsufficientPermissions.new(parsed_body)
+        raise InsufficientPermissions.new(response)
       when 404
-        raise RecordNotFound.new(parsed_body)
+        raise RecordNotFound.new(response)
       when 405
-        raise DuplicateRecordExists.new(parsed_body)
+        raise DuplicateRecordExists.new(response)
       when 413
-        raise FileSizeExceedsLimit.new(parsed_body)
+        raise FileSizeExceedsLimit.new(response)
       end
 
       # Handle all other request errors.
-      raise RequestError.new(parsed_body) if status >= 400
+      raise RequestError.new(response) if status >= 400
+    end
 
-      parsed_body
-
+    def parse_response_body(body)
+      JSON.parse(body)
+    rescue
+      {}
     end
 
   end
