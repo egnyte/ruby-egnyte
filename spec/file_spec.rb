@@ -29,7 +29,7 @@ describe Egnyte::File do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:status => 404)
 
-      expect{@client.file('Shared/banana.txt')}.to raise_error( Egnyte::RecordNotFound ) 
+      expect{@client.file('Shared/banana.txt')}.to raise_error( Egnyte::RecordNotFound )
     end
 
     it "should raise FileExpected if path to folder provided" do
@@ -37,8 +37,35 @@ describe Egnyte::File do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:body => File.read('./spec/fixtures/list_folder.json'), :status => 200)
 
-      expect{@client.file('/Shared')}.to raise_error( Egnyte::FileExpected ) 
+      expect{@client.file('/Shared')}.to raise_error( Egnyte::FileExpected )
     end
   end
 
+  describe "#download" do
+    it "should stream the file contents" do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared/banana.txt")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => File.read('./spec/fixtures/list_file.json'), :status => 200)
+
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs-content/Shared/banana.txt")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => 'Banana Text', :status => 200)
+
+      expect(@client.file('Shared/banana.txt').download).to eq('Banana Text')
+    end
+  end
+
+  describe "#delete" do
+    it "should delete the file" do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared/banana.txt")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => File.read('./spec/fixtures/list_file.json'), :status => 200)
+
+      stub_request(:delete, "https://test.egnyte.com/pubapi/v1/fs/Shared/banana.txt")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => '{"status":"no more banana"}', :status => 200)
+
+      expect(@client.file('Shared/banana.txt').delete).to eq({ "status" => "no more banana" })
+    end
+  end
 end

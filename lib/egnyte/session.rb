@@ -10,9 +10,11 @@ module Egnyte
 
       @strategy = strategy # the authentication strategy to use.
       raise Egnyte::UnsupportedAuthStrategy unless [:implicit, :password].include? @strategy
-      
+
       @backoff = backoff # only two requests are allowed a second by Egnyte.
       @api = 'pubapi' # currently we only support the public API.
+
+      @username = opts[:username]
 
       # the domain of the egnyte account to interact with.
       raise Egnyte::DomainRequired unless @domain = opts[:domain]
@@ -29,7 +31,7 @@ module Egnyte
         if opts[:access_token]
           @access_token = OAuth2::AccessToken.new(@client, opts[:access_token])
         else
-          raise Egnyte::OAuthUsernameRequired unless @username = opts[:username]
+          raise Egnyte::OAuthUsernameRequired unless @username
           raise Egnyte::OAuthPasswordRequired unless opts[:password]
           if true #OS.windows?
             body = {
@@ -129,7 +131,7 @@ module Egnyte
         :progress_proc => opts[:progress_proc],
         'Authorization' => "Bearer #{@access_token.token}"
       }
-      
+
       open(url, params)
     end
 
@@ -144,7 +146,7 @@ module Egnyte
         http.cert_store.add_file("#{::File.dirname(__FILE__)}/../../includes/cacert.pem")
       end
       #http.set_debug_output($stdout)
-      
+
       unless request.content_type == "application/x-www-form-urlencoded"
         request.add_field('Authorization', "Bearer #{@access_token.token}")
       end
@@ -157,38 +159,37 @@ module Egnyte
 
       # puts "#{response.code.to_i} ||||| #{response.body}"
 
-      return_parsed_response ? parse_response( response.code.to_i, response.body ) : response
+
+      return_value = return_parsed_response ? parse_response_body(response.body) : response
+      parse_response_code(response.code.to_i, return_value)
+
+      return_value
     end
 
-    def parse_response( status, body )
-
-      begin
-        parsed_body = JSON.parse(body)
-      rescue
-        parsed_body = {}
-      end
-
-      # Handle known errors.
+    def parse_response_code(status, response)
       case status
       when 400
-        raise BadRequest.new(parsed_body)
+        raise BadRequest.new(response)
       when 401
-        raise NotAuthorized.new(parsed_body)
+        raise NotAuthorized.new(response)
       when 403
-        raise InsufficientPermissions.new(parsed_body)
+        raise InsufficientPermissions.new(response)
       when 404
-        raise RecordNotFound.new(parsed_body)
+        raise RecordNotFound.new(response)
       when 405
-        raise DuplicateRecordExists.new(parsed_body)
+        raise DuplicateRecordExists.new(response)
       when 413
-        raise FileSizeExceedsLimit.new(parsed_body)
+        raise FileSizeExceedsLimit.new(response)
       end
 
       # Handle all other request errors.
-      raise RequestError.new(parsed_body) if status >= 400
+      raise RequestError.new(response) if status >= 400
+    end
 
-      parsed_body
-      
+    def parse_response_body(body)
+      JSON.parse(body)
+    rescue
+      {}
     end
 
   end

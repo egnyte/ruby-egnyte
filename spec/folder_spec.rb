@@ -16,6 +16,25 @@ describe Egnyte::Folder do
   end
 
   describe "#upload" do
+    context "when the upload fails (e.g. when the service is unavailable)" do
+      it "raises an appropriate exception" do
+        file_contents = 'Some data.'
+
+        stub_request(:post, "https://test.egnyte.com/pubapi/v1/fs-content/apple/banana/LICENSE.txt")
+          .with(:headers => { 'Authorization' => 'Bearer access_token' }, :body => file_contents)
+          .to_return(:body => '', :status => 503)
+
+          folder = Egnyte::Folder.new({
+            'path' => 'apple/banana',
+            'name' => 'banana'
+          }, @session)
+
+          expect {
+            folder.upload('LICENSE.txt', StringIO.new(file_contents))
+          }.to raise_error(Egnyte::RequestError)
+      end
+    end
+
     it "upload file to appropriate endpoint, and return a file object" do
       stub_request(:post, "https://test.egnyte.com/pubapi/v1/fs-content/apple/banana/LICENSE.txt")
         .with(:headers => { 'Authorization' => 'Bearer access_token' }, :body => File.open('./LICENSE.txt').read)
@@ -77,7 +96,7 @@ describe Egnyte::Folder do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:status => 404)
 
-      expect {@client.folder('banana')}.to raise_error( Egnyte::RecordNotFound ) 
+      expect {@client.folder('banana')}.to raise_error( Egnyte::RecordNotFound )
     end
 
     it "should raise FolderExpected if path to file provided" do
@@ -85,7 +104,7 @@ describe Egnyte::Folder do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:body => File.read('./spec/fixtures/list_file.json'), :status => 200)
 
-      expect {@client.folder}.to raise_error( Egnyte::FolderExpected ) 
+      expect {@client.folder}.to raise_error( Egnyte::FolderExpected )
     end
   end
 
@@ -102,7 +121,7 @@ describe Egnyte::Folder do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:status => 404)
 
-      expect {@client.folder('banana')}.to raise_error( Egnyte::RecordNotFound ) 
+      expect {@client.folder('banana')}.to raise_error( Egnyte::RecordNotFound )
     end
 
     it "should raise FolderExpected if path to file provided" do
@@ -110,7 +129,7 @@ describe Egnyte::Folder do
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:body => File.read('./spec/fixtures/list_file.json'), :status => 200)
 
-      expect {@client.folder}.to raise_error( Egnyte::FolderExpected ) 
+      expect {@client.folder}.to raise_error( Egnyte::FolderExpected )
     end
   end
 
@@ -151,12 +170,12 @@ describe Egnyte::Folder do
   end
 
   context "permissions" do
-    before(:each) do 
+    before(:each) do
       stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared")
         .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:body => File.read('./spec/fixtures/list_folder.json'), :status => 200)
     end
-  
+
     describe "#permissions" do
       it "should returned a parsed list permissions" do
         stub_request(:get, "https://test.egnyte.com/pubapi/v1/perms/folder/Shared")
