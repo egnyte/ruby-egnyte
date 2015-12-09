@@ -20,7 +20,7 @@ module Egnyte
     # :content_length_proc
     # :progress_proc
     def stream( opts={} )
-      @session.streaming_download( "#{fs_path('fs-content')}#{path}", opts )
+      @session.streaming_download( URI::encode("#{fs_path('fs-content')}#{path}"), opts )
     end
 
     def delete

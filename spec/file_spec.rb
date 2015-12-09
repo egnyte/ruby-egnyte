@@ -53,6 +53,18 @@ describe Egnyte::File do
 
       expect(@client.file('Shared/banana.txt').download).to eq('Banana Text')
     end
+
+    it "should handle paths with spaces" do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Private/My%20Notes/banana.txt")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => File.read('./spec/fixtures/list_file.json'), :status => 200)
+
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs-content/Private/My%20Notes/banana.txt")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
+        .to_return(:body => 'Banana Text', :status => 200)
+
+      expect(@client.file('Private/My Notes/banana.txt').download).to eq('Banana Text')
+    end
   end
 
   describe "#delete" do
