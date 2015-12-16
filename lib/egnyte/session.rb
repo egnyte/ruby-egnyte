@@ -47,10 +47,9 @@ module Egnyte
             @access_token = @client.password.get_token(@username, opts[:password])
           end
         end
+        @username = info["username"] unless @username
       end
-
-      @username = info["username"] unless @username
-
+      
     end
 
     def info
