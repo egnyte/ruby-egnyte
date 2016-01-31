@@ -125,13 +125,15 @@ module Egnyte
     # perform a streaming download of a file
     # rather than in-memory.
     def streaming_download(url, opts)
+      uri = URI.parse(Egnyte::Helper.encode_url(url))
+
       params = {
         :content_length_proc => opts[:content_length_proc],
         :progress_proc => opts[:progress_proc],
         'Authorization' => "Bearer #{@access_token.token}"
       }
 
-      open(url, params)
+      open(uri, params)
     end
 
     private
