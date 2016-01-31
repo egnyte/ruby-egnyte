@@ -14,13 +14,20 @@ module Egnyte
       stream.read
     end
 
+    def download_version(entry_id)
+      stream(:entry_id => entry_id).read
+    end
+
     # use opts to provide lambdas
     # to track the streaming download:
     #
     # :content_length_proc
     # :progress_proc
     def stream( opts={} )
-      @session.streaming_download( "#{fs_path('fs-content')}#{path}", opts )
+      file_content_path = "#{fs_path('fs-content')}#{Egnyte::Helper.normalize_path(path)}"
+      file_content_path += "?entry_id=#{opts[:entry_id]}" if opts[:entry_id]
+      puts file_content_path
+      @session.streaming_download(file_content_path, opts )
     end
 
     def delete
