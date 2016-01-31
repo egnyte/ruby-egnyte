@@ -26,7 +26,6 @@ module Egnyte
     def stream( opts={} )
       file_content_path = "#{fs_path('fs-content')}#{Egnyte::Helper.normalize_path(path)}"
       file_content_path += "?entry_id=#{opts[:entry_id]}" if opts[:entry_id]
-      puts file_content_path
       @session.streaming_download(file_content_path, opts )
     end
 
