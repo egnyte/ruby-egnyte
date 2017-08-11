@@ -24,7 +24,7 @@ describe Egnyte::User do
       key: 'api_key',
       domain: 'test',
       access_token: 'access_token'
-    }, :implicit, 0.0)
+    }, :auth_code, 0.0)
     @client = Egnyte::Client.new(@session)
     @user = Egnyte::User.new(@session, @valid_user_params)
   end

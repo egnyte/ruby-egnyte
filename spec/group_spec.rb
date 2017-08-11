@@ -14,7 +14,7 @@ describe Egnyte::Group do
       key: 'api_key',
       domain: 'test',
       access_token: 'access_token'
-    }, :implicit, 0.0)
+    }, :auth_code, 0.0)
     @client = Egnyte::Client.new(@session)
     @group = Egnyte::Group.new(@session, @valid_group_params)
     @group2 = Egnyte::Group.new(@session, "Test without members")

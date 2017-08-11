@@ -6,10 +6,10 @@ module Egnyte
     attr_accessor :domain, :api, :username
     attr_reader :access_token
 
-    def initialize(opts, strategy=:implicit, backoff=0.5)
+    def initialize(opts, strategy=:auth_code, backoff=0.5)
 
       @strategy = strategy # the authentication strategy to use.
-      raise Egnyte::UnsupportedAuthStrategy unless [:implicit, :password].include? @strategy
+      raise Egnyte::UnsupportedAuthStrategy unless [:auth_code, :password].include? @strategy
 
       @backoff = backoff # only two requests are allowed a second by Egnyte.
       @api = 'pubapi' # currently we only support the public API.
@@ -19,13 +19,14 @@ module Egnyte
       # the domain of the egnyte account to interact with.
       raise Egnyte::DomainRequired unless @domain = opts[:domain]
 
-      @client = OAuth2::Client.new(opts[:key], nil, {
+      @client = OAuth2::Client.new(opts[:key], opts[:secret], {
         :site => "https://#{@domain}.#{EGNYTE_DOMAIN}",
         :authorize_url => "/puboauth/token",
-        :token_url => "/puboauth/token"
+        :token_url => "/puboauth/token",
+        :redirect_uri => opts[:redirect_uri]
       })
 
-      if @strategy == :implicit
+      if @strategy == :auth_code
         @access_token = OAuth2::AccessToken.new(@client, opts[:access_token]) if opts[:access_token]
       elsif @strategy == :password
         if opts[:access_token]
@@ -49,7 +50,6 @@ module Egnyte
         end
         @username = info["username"] unless @username
       end
-      
     end
 
     def info
@@ -60,12 +60,16 @@ module Egnyte
       get("https://#{@domain}.#{EGNYTE_DOMAIN}/#{@api}/v1/userinfo", return_parsed_response=true)
     end
 
-    def authorize_url(redirect_uri)
-      @client.implicit.authorize_url(:redirect_uri => redirect_uri)
+    def authorize_url
+      @client.auth_code.authorize_url
     end
 
     def create_access_token(token)
-      @access_token = OAuth2::AccessToken.new(@client, token) if @strategy == :implicit
+      @access_token = OAuth2::AccessToken.new(@client, token) if @strategy == :auth_code
+    end
+
+    def get_token(code)
+      @client.auth_code.get_token(code)
     end
 
     def get(url, return_parsed_response=true)

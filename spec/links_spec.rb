@@ -22,7 +22,7 @@ describe Egnyte::Link do
       key: 'api_key',
       domain: 'test',
       access_token: 'access_token'
-    }, :implicit, 0.0)
+    }, :auth_code, 0.0)
     @client = Egnyte::Client.new(@session)
     @folder_link = Egnyte::Link.new(@session, @valid_folder_link_params)
     @file_link = Egnyte::Link.new(@session, @valid_file_link_params)
