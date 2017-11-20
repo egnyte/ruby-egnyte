@@ -1,7 +1,8 @@
 Ruby Egnyte
 ===========
 
-Maintained by: [Egnyte](https://www.egnyte.com)
+This SDK is no longer supported by Egnyte. It continues to be available as-is and pull requests will be merged, but no support  will be provided.
+--------
 
 A feature-rich Ruby client for the [Egnyte API](https://developers.egnyte.com/docs).  
 
