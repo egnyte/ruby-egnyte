@@ -53,4 +53,51 @@ describe Egnyte::EgnyteError do
     end
   end
 
+  context "with a  non json error" do
+    before do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared/example.txt")
+        .to_return(:body => "#{error_message} which doesn't look like JSON!", :status => 400)
+    end
+    let(:error_message) {"Something new in sandwitches"}
+    it "raises expected error class" do
+      expect {subject}.to raise_error(Egnyte::BadRequest)
+    end
+    it "raises expected error with message " do
+      expect {subject}.to raise_error /#{error_message}/
+    end
+  end
+
+  context "with a standard 403" do
+    before do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared/example.txt")
+        .to_return(:body => "#{error_message} which doesn't look like JSON!", :status => 403)
+    end
+    let(:error_message) {"Something new in sandwitches"}
+    it "raises expected error class" do
+      expect {subject}.to raise_error(Egnyte::InsufficientPermissions)
+    end
+    it "raises expected error with message " do
+      expect {subject}.to raise_error /#{error_message}/
+    end
+  end
+
+  context "with a 403 indicating oer QPS" do
+    before do
+      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared/example.txt")
+        .to_return(:body => "#{error_message} which doesn't look like JSON!", :status => 403,
+          headers: { 'X-Mashery-Error-Code' => 'ERR_403_DEVELOPER_OVER_QPS', 'Retry-After' => 1 })
+    end
+
+    let(:error_message) {"Something new in sandwitches"}
+    it "raises expected error class" do
+      expect {subject}.to raise_error(Egnyte::RateLimitExceededQPS)
+    end
+
+    it "returns correct retry_after" do
+      expect {subject}.to raise_error(Egnyte::RateLimitExceededQPS) do |e|
+        expect(e.retry_after).to eq(1)
+      end
+    end
+  end
+
 end

@@ -26,4 +26,12 @@ module Egnyte
   class OAuthUsernameRequired < StandardError; end
   class OAuthPasswordRequired < StandardError; end
   class MissingAttribute < EgnyteError; end
+
+  class RateLimitExceededQPS < EgnyteError
+    attr_reader :retry_after
+    def initialize(data, retry_after)
+      super(data)
+      @retry_after = retry_after
+    end
+  end
 end

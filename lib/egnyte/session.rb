@@ -162,29 +162,34 @@ module Egnyte
 
 
       return_value = return_parsed_response ? parse_response_body(response.body) : response
-      parse_response_code(response.code.to_i, return_value)
+      parse_response_code(response.code.to_i, return_value, response)
 
       return_value
     end
 
-    def parse_response_code(status, response)
+    def parse_response_code(status, response_body, response)
       case status
       when 400
-        raise BadRequest.new(response)
+        raise BadRequest.new(response_body)
       when 401
-        raise NotAuthorized.new(response)
+        raise NotAuthorized.new(response_body)
       when 403
-        raise InsufficientPermissions.new(response)
+        case response.header['X-Mashery-Error-Code']
+        when "ERR_403_DEVELOPER_OVER_QPS"
+          raise RateLimitExceededQPS.new(response_body, response.header['Retry-After']&.to_i)
+        else
+          raise InsufficientPermissions.new(response_body)
+        end
       when 404
-        raise RecordNotFound.new(response)
+        raise RecordNotFound.new(response_body)
       when 405
-        raise DuplicateRecordExists.new(response)
+        raise DuplicateRecordExists.new(response_body)
       when 413
-        raise FileSizeExceedsLimit.new(response)
+        raise FileSizeExceedsLimit.new(response_body)
       end
 
       # Handle all other request errors.
-      raise RequestError.new(response) if status >= 400
+      raise RequestError.new(response_body) if status >= 400
     end
 
     def parse_response_body(body)
