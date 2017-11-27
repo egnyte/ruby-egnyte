@@ -49,7 +49,7 @@ module Egnyte
         end
         @username = info["username"] unless @username
       end
-      
+
     end
 
     def info
@@ -190,7 +190,7 @@ module Egnyte
     def parse_response_body(body)
       JSON.parse(body)
     rescue
-      {}
+      {original_body: body} # return original_body as a json hash if unparseable
     end
 
   end

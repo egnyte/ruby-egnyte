@@ -1,6 +1,7 @@
-module Egnyte 
+module Egnyte
   class EgnyteError < StandardError
     def initialize(data)
+      super(data.to_s)
       @data = data
     end
 
