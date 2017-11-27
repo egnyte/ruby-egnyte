@@ -176,7 +176,9 @@ module Egnyte
       when 403
         case response.header['X-Mashery-Error-Code']
         when "ERR_403_DEVELOPER_OVER_QPS"
-          raise RateLimitExceededQPS.new(response_body, response.header['Retry-After']&.to_i)
+          raise RateLimitExceededPerSecond.new(response_body, response.header['Retry-After']&.to_i)
+        when "ERR_403_DEVELOPER_OVER_RATE"
+          raise RateLimitExceededQuota.new(response_body, response.header['Retry-After']&.to_i)
         else
           raise InsufficientPermissions.new(response_body)
         end
