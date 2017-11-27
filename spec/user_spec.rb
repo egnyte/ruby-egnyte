@@ -17,9 +17,6 @@ describe Egnyte::User do
       :active => true,
       :sendInvite => true
     }
-    stub_request(:get, "https://test.egnyte.com/pubapi/v1/userinfo").
-             with(:headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization'=>'Bearer access_token', 'User-Agent'=>'Ruby'}).
-             to_return(:status => 200, :body => "", :headers => {})
     @session = Egnyte::Session.new({
       key: 'api_key',
       domain: 'test',
@@ -178,7 +175,7 @@ describe Egnyte::User do
       expect(Egnyte::User).to receive(:delete).and_return({})
       Egnyte::User.delete(@session, 12408258604)
     end
-    
+
   end
 
   describe "#User::links" do
@@ -192,7 +189,7 @@ describe Egnyte::User do
         .to_return(:status => 200, :body => File.read('./spec/fixtures/link/link_list.json'), :headers => {})
       Egnyte::User.links(@session, 12408258604)
     end
-    
+
   end
 
   describe "#User::permissions" do
@@ -206,7 +203,7 @@ describe Egnyte::User do
         .to_return(:status => 200, :body => File.read('./spec/fixtures/link/link_list.json'), :headers => {})
       Egnyte::User.links(@session, 12408258604)
     end
-    
+
   end
 
 end
