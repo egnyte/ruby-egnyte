@@ -3,22 +3,22 @@
 require 'spec_helper'
 
 describe Egnyte::EgnyteError do
-  before(:each) do
-    session = Egnyte::Session.new({
-      key: 'api_key',
-      domain: 'test',
-      access_token: 'access_token'
-    }, :implicit, 0.0)
-    @client = Egnyte::Client.new(session)
+  let!(:session) {Egnyte::Session.new({
+    key: 'api_key',
+    domain: 'test',
+    access_token: 'access_token'
+  }, :implicit, 0.0)}
+  let!(:client) { Egnyte::Client.new(session) }
+
+  subject {client.file('/Shared/example.txt')}
+
+  def stub_success
+    stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared/example.txt")
+      .to_return(:body => File.read('./spec/fixtures/list_file.json'), :status => 200)
   end
 
-  subject {@client.file('/Shared/example.txt')}
-
   context "status: 200" do
-    before do
-      stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared/example.txt")
-        .to_return(:body => File.read('./spec/fixtures/list_file.json'), :status => 200)
-    end
+    before { stub_success }
     it "works" do
       expect {subject}.not_to raise_error
     end
@@ -81,23 +81,52 @@ describe Egnyte::EgnyteError do
     end
   end
 
-  context "with a 403 indicating oer QPS" do
-    before do
+  context "with a 403 indicating over Quota Per Second" do
+    def stub_rate_limit_exceeded_per_second(retry_after: 1)
       stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared/example.txt")
         .to_return(:body => "#{error_message} which doesn't look like JSON!", :status => 403,
-          headers: { 'X-Mashery-Error-Code' => 'ERR_403_DEVELOPER_OVER_QPS', 'Retry-After' => 1 })
+          headers: { 'X-Mashery-Error-Code' => 'ERR_403_DEVELOPER_OVER_QPS', 'Retry-After' => retry_after })
+    end
+    context "when not configured for retries" do
+      before {stub_rate_limit_exceeded_per_second}
+
+      let(:error_message) {"Something new in sandwitches"}
+
+      it "raises with retry_after" do
+        expect {subject}.to raise_error(Egnyte::RateLimitExceededPerSecond) do |e|
+          expect(e.retry_after).to eq(1)
+        end
+      end
     end
 
-    let(:error_message) {"Something new in sandwitches"}
+    context "when configured for retries" do
+      let!(:session) {Egnyte::Session.new({
+        key: 'api_key',
+        domain: 'test',
+        access_token: 'access_token'
+      }, :implicit, 0.0, retries: 3)}
 
-    it "returns correct retry_after" do
-      expect {subject}.to raise_error(Egnyte::RateLimitExceededPerSecond) do |e|
-        expect(e.retry_after).to eq(1)
+      it "will retry and succeed" do
+        stub_rate_limit_exceeded_per_second(retry_after: 0)
+        stub_rate_limit_exceeded_per_second(retry_after: 0)
+        stub_success
+        expect {subject}.not_to raise_error
+      end
+
+      it "will retry and run out of times" do
+        stub_rate_limit_exceeded_per_second(retry_after: 0)
+        stub_rate_limit_exceeded_per_second(retry_after: 0)
+        stub_rate_limit_exceeded_per_second(retry_after: 0)
+        expect {subject}.to raise_error(Egnyte::RateLimitExceededPerSecond)
+      end
+      it "won't retry if wait too long" do
+        stub_rate_limit_exceeded_per_second(retry_after: 6000)
+        expect {subject}.to raise_error(Egnyte::RateLimitExceededPerSecond)
       end
     end
   end
 
-  context "with a 403 indicating oer QPS" do
+  context "with a 403 indicating over Daily Quota" do
     before do
       stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared/example.txt")
         .to_return(:body => "#{error_message} which doesn't look like JSON!", :status => 403,

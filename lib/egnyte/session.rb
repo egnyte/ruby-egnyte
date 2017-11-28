@@ -6,12 +6,13 @@ module Egnyte
     attr_accessor :domain, :api, :username
     attr_reader :access_token
 
-    def initialize(opts, strategy=:implicit, backoff=0.5)
+    def initialize(opts, strategy=:implicit, backoff=0.5, retries: 0)
 
       @strategy = strategy # the authentication strategy to use.
       raise Egnyte::UnsupportedAuthStrategy unless [:implicit, :password].include? @strategy
 
       @backoff = backoff # only two requests are allowed a second by Egnyte.
+      @retries = retries # how many retries in case you go over the quota per second
       @api = 'pubapi' # currently we only support the public API.
 
       @username = opts[:username]
@@ -138,7 +139,10 @@ module Egnyte
 
     private
 
+    MAX_SLEEP_DURATION_BEFORE_RETRY = 10
+
     def request(uri, request, return_parsed_response=true)
+      retry_count ||= 0
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       if OS.windows? # Use provided certificate on Windows where gem doesn't have access to a cert store.
@@ -165,6 +169,14 @@ module Egnyte
       parse_response_code(response.code.to_i, return_value, response)
 
       return_value
+    rescue RateLimitExceededPerSecond => e
+      if e.retry_after < MAX_SLEEP_DURATION_BEFORE_RETRY && retry_count < @retries
+        sleep(e.retry_after)
+        retry_count += 1
+        retry
+      else
+        raise
+      end
     end
 
     def parse_response_code(status, response_body, response)
