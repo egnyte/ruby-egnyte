@@ -171,10 +171,12 @@ module Egnyte
       return_value
     rescue RateLimitExceededPerSecond => e
       if e.retry_after < MAX_SLEEP_DURATION_BEFORE_RETRY && retry_count < @retries
-        sleep(e.retry_after)
         retry_count += 1
+        puts "Rate Limit Exceeeded: retrying ##{retry_count}/#{@retries} after #{e.retry_after}"
+        sleep(e.retry_after)
         retry
       else
+        puts "Rate Limit Exceeeded: not retrying (##{retry_count}/#{@retries}, after #{e.retry_after})"
         raise
       end
     end
