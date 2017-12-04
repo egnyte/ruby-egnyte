@@ -84,6 +84,7 @@ describe Egnyte::EgnyteError do
   context "with a 403 indicating over Quota Per Second" do
     def stub_rate_limit_exceeded_per_second(retry_after: 1)
       stub_request(:get, "https://test.egnyte.com/pubapi/v1/fs/Shared/example.txt")
+        .with(:headers => { 'Authorization' => 'Bearer access_token' })
         .to_return(:body => "#{error_message} which doesn't look like JSON!", :status => 403,
           headers: { 'X-Mashery-Error-Code' => 'ERR_403_DEVELOPER_OVER_QPS', 'Retry-After' => retry_after })
     end

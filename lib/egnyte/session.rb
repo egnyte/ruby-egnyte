@@ -142,7 +142,14 @@ module Egnyte
     MAX_SLEEP_DURATION_BEFORE_RETRY = 10
 
     def request(uri, request, return_parsed_response=true)
-      retry_count ||= 0
+      unless request.content_type == "application/x-www-form-urlencoded"
+        request.add_field('Authorization', "Bearer #{@access_token.token}")
+      end
+
+      request_with_retries(uri, request, return_parsed_response)
+    end
+
+    def new_http(uri)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       if OS.windows? # Use provided certificate on Windows where gem doesn't have access to a cert store.
@@ -150,13 +157,12 @@ module Egnyte
         http.cert_store.set_default_paths
         http.cert_store.add_file("#{::File.dirname(__FILE__)}/../../includes/cacert.pem")
       end
-      #http.set_debug_output($stdout)
+      http
+    end
 
-      unless request.content_type == "application/x-www-form-urlencoded"
-        request.add_field('Authorization', "Bearer #{@access_token.token}")
-      end
-
-      response = http.request(request)
+    def request_with_retries(uri, request, return_parsed_response=true)
+      retry_count ||= 0
+      response = new_http(uri).request(request)
 
       # Egnyte throttles requests to
       # two requests per second by default.
