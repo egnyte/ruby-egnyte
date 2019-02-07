@@ -6,12 +6,13 @@ module Egnyte
     attr_accessor :domain, :api, :username
     attr_reader :access_token
 
-    def initialize(opts, strategy=:implicit, backoff=0.5)
+    def initialize(opts, strategy=:implicit, backoff=0.5, retries: 0)
 
       @strategy = strategy # the authentication strategy to use.
       raise Egnyte::UnsupportedAuthStrategy unless [:implicit, :password].include? @strategy
 
       @backoff = backoff # only two requests are allowed a second by Egnyte.
+      @retries = retries # how many retries in case you go over the quota per second
       @api = 'pubapi' # currently we only support the public API.
 
       @username = opts[:username]
@@ -49,7 +50,7 @@ module Egnyte
         end
         @username = info["username"] unless @username
       end
-      
+
     end
 
     def info
@@ -138,7 +139,17 @@ module Egnyte
 
     private
 
+    MAX_SLEEP_DURATION_BEFORE_RETRY = 10
+
     def request(uri, request, return_parsed_response=true)
+      unless request.content_type == "application/x-www-form-urlencoded"
+        request.add_field('Authorization', "Bearer #{@access_token.token}")
+      end
+
+      request_with_retries(uri, request, return_parsed_response)
+    end
+
+    def new_http(uri)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       if OS.windows? # Use provided certificate on Windows where gem doesn't have access to a cert store.
@@ -146,13 +157,12 @@ module Egnyte
         http.cert_store.set_default_paths
         http.cert_store.add_file("#{::File.dirname(__FILE__)}/../../includes/cacert.pem")
       end
-      #http.set_debug_output($stdout)
+      http
+    end
 
-      unless request.content_type == "application/x-www-form-urlencoded"
-        request.add_field('Authorization', "Bearer #{@access_token.token}")
-      end
-
-      response = http.request(request)
+    def request_with_retries(uri, request, return_parsed_response=true)
+      retry_count ||= 0
+      response = new_http(uri).request(request)
 
       # Egnyte throttles requests to
       # two requests per second by default.
@@ -162,35 +172,52 @@ module Egnyte
 
 
       return_value = return_parsed_response ? parse_response_body(response.body) : response
-      parse_response_code(response.code.to_i, return_value)
+      parse_response_code(response.code.to_i, return_value, response)
 
       return_value
+    rescue RateLimitExceededPerSecond => e
+      if e.retry_after < MAX_SLEEP_DURATION_BEFORE_RETRY && retry_count < @retries
+        retry_count += 1
+        puts "Rate Limit Exceeeded: retrying ##{retry_count}/#{@retries} after #{e.retry_after}"
+        sleep(e.retry_after)
+        retry
+      else
+        puts "Rate Limit Exceeeded: not retrying (##{retry_count}/#{@retries}, after #{e.retry_after})"
+        raise
+      end
     end
 
-    def parse_response_code(status, response)
+    def parse_response_code(status, response_body, response)
       case status
       when 400
-        raise BadRequest.new(response)
+        raise BadRequest.new(response_body)
       when 401
-        raise NotAuthorized.new(response)
+        raise NotAuthorized.new(response_body)
       when 403
-        raise InsufficientPermissions.new(response)
+        case response.header['X-Mashery-Error-Code']
+        when "ERR_403_DEVELOPER_OVER_QPS"
+          raise RateLimitExceededPerSecond.new(response_body, response.header['Retry-After']&.to_i)
+        when "ERR_403_DEVELOPER_OVER_RATE"
+          raise RateLimitExceededQuota.new(response_body, response.header['Retry-After']&.to_i)
+        else
+          raise InsufficientPermissions.new(response_body)
+        end
       when 404
-        raise RecordNotFound.new(response)
+        raise RecordNotFound.new(response_body)
       when 405
-        raise DuplicateRecordExists.new(response)
+        raise DuplicateRecordExists.new(response_body)
       when 413
-        raise FileSizeExceedsLimit.new(response)
+        raise FileSizeExceedsLimit.new(response_body)
       end
 
       # Handle all other request errors.
-      raise RequestError.new(response) if status >= 400
+      raise RequestError.new(response_body) if status >= 400
     end
 
     def parse_response_body(body)
       JSON.parse(body)
     rescue
-      {}
+      {original_body: body} # return original_body as a json hash if unparseable
     end
 
   end

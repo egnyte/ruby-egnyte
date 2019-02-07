@@ -104,6 +104,26 @@ file = @client.file('/Shared/Documents/LICENSE.txt')
 file.download
 ```
 
+Rate limitations
+-----------
+
+There are rate limitations on a per-token basis in the Egnyte API: per second, and daily quota. 
+
+The library raises a `Egnyte::RateLimitExceededPerSecond` when you go over your alloted rate per second, and raises a `Egnyte::RateLimitExceededQuota` when you go over your alloted daily quota.
+Both exceptions contain a retry_after value.
+
+You can also instantiate the session with the optional keyword variable `retries: 5` e.g.: 
+
+```ruby
+session = Egnyte::Session.new(
+           {access_token: 'secret-token', domain: 'egnyte_domain', username: 'me'}, 
+           :implicit, # or :password for internal apps 
+           0.0, # backoff of 0 makes sense if you are retrying 
+           retries: 5)
+```
+
+
+
 Contributing
 -----------
 
