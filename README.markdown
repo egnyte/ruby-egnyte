@@ -8,7 +8,7 @@ A feature-rich Ruby client for the [Egnyte API](https://developers.egnyte.com/do
 
 Special thanks to the folks at Attachments.me and Yesware, Inc. who got this library off to a great start.
 
-NOTE: THIS LIBRARY IS CURRENTLY UNDER DEVELOPMENT TO EXTEND SUPPORT TO ALL AVAILABLE ENDPOINTS.  WHEN THE CURRENT WORK IS COMPLETE, THE VERSION WILL BE BUMPED TO 0.2.0.
+[![Build Status](https://travis-ci.org/egnyte/ruby-egnyte.svg?branch=master)](https://travis-ci.org/egnyte/ruby-egnyte)
 
 Authentication
 --------
